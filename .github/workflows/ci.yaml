@@ -36,6 +36,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Upload Error Log
+        if: always() # Run even if the build failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-log
+          path: D:\a\IACore\IACore\out\build\windows-x64\vcpkg_installed\vcpkg\blds\detect_compiler\config-windows-x64-clang-out.log
+
       - name: Setup VCPKG
         run: |
           git clone https://github.com/microsoft/vcpkg.git C:/vcpkg
@@ -56,4 +63,8 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake --preset ${{ matrix.target }}
           cmake --build --preset ${{ matrix.target }} --config Debug
+        
+      - name: Setup tmate session
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
 
