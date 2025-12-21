@@ -3,6 +3,8 @@ set(CMAKE_SYSTEM_PROCESSOR AMD64)
 set(CMAKE_C_COMPILER clang-cl)
 set(CMAKE_CXX_COMPILER clang-cl)
 
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
 set(CMAKE_LINKER lld-link)
 
 string(APPEND CMAKE_C_FLAGS " /arch:AVX2 -fuse-ld=lld-link")

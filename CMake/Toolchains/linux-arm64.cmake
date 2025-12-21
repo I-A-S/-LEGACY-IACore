@@ -5,6 +5,8 @@ set(triple aarch64-linux-gnu)
 set(CMAKE_C_COMPILER_TARGET   ${triple})
 set(CMAKE_CXX_COMPILER_TARGET ${triple})
 
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
 set(CMAKE_SYSROOT /usr/aarch64-linux-gnu/sys-root)
 set(CMAKE_LIBRARY_ARCHITECTURE aarch64-linux-gnu)
 
