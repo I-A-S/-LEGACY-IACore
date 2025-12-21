@@ -98,18 +98,15 @@ set(EXPECTED_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 set(HTTPLIB_REQUIRE_OPENSSL OFF CACHE BOOL "" FORCE)
 set(HTTPLIB_REQUIRE_ZLIB OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_NO_EXCEPTIONS ON CACHE BOOL "" FORCE)
 
 set(ZSTD_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(ZSTD_BUILD_STATIC ON CACHE BOOL "" FORCE)
 
 set(ZLIB_COMPAT ON CACHE BOOL "" FORCE)
-set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(ZLIB zstd)
-
-if(TARGET libzstd_static AND NOT TARGET zstd::libzstd)
-    add_library(zstd::libzstd ALIAS libzstd_static)
-endif()
 
 FetchContent_MakeAvailable(httplib pugixml nlohmann_json glaze simdjson tl-expected unordered_dense mimalloc)
 

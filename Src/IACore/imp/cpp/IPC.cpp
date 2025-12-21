@@ -191,7 +191,7 @@ namespace IACore
     {
         for (auto &session : m_activeSessions)
         {
-            ProcessOps::TerminateProcess(session->ProcessHandle);
+            ProcessOps::TerminateProcess(session->NodeProcess);
             FileOps::UnmapFile(session->MappedPtr);
             FileOps::UnlinkSharedMemory(session->SharedMemName);
             SocketOps::Close(session->DataSocket);
@@ -200,7 +200,7 @@ namespace IACore
 
         for (auto &session : m_pendingSessions)
         {
-            ProcessOps::TerminateProcess(session->ProcessHandle);
+            ProcessOps::TerminateProcess(session->NodeProcess);
             FileOps::UnmapFile(session->MappedPtr);
             FileOps::UnlinkSharedMemory(session->SharedMemName);
             SocketOps::Close(session->ListenerSocket);
@@ -221,7 +221,7 @@ namespace IACore
 
             if (now - session->CreationTime > std::chrono::seconds(5))
             {
-                ProcessOps::TerminateProcess(session->ProcessHandle);
+                ProcessOps::TerminateProcess(session->NodeProcess);
 
                 FileOps::UnmapFile(session->MappedPtr);
                 FileOps::UnlinkSharedMemory(session->SharedMemName);
@@ -249,7 +249,7 @@ namespace IACore
                 SocketOps::Close(session->ListenerSocket);
                 session->ListenerSocket = INVALID_SOCKET;
 
-                const auto sessionID = session->ProcessHandle->ID.load();
+                const auto sessionID = session->NodeProcess->ID.load();
                 const auto sessionPtr = session.get();
                 m_activeSessions.push_back(std::move(session));
                 m_pendingSessions.erase(m_pendingSessions.begin() + i);
@@ -261,7 +261,7 @@ namespace IACore
         {
             auto &node = m_activeSessions[i];
 
-            auto nodeID = node->ProcessHandle->ID.load();
+            auto nodeID = node->NodeProcess->ID.load();
 
             RingBufferView::PacketHeader header;
 
@@ -275,7 +275,7 @@ namespace IACore
                 OnSignal(nodeID, signal);
             else if (res == 0 || (res < 0 && !SocketOps::IsWouldBlock()))
             {
-                ProcessOps::TerminateProcess(node->ProcessHandle);
+                ProcessOps::TerminateProcess(node->NodeProcess);
 
                 FileOps::UnmapFile(node->MappedPtr);
                 FileOps::UnlinkSharedMemory(node->SharedMemName);
@@ -355,7 +355,7 @@ namespace IACore
 
         String args = std::format("\"{}\"", desc.Serialize());
 
-        session->ProcessHandle = ProcessOps::SpawnProcessAsync(
+        session->NodeProcess = ProcessOps::SpawnProcessAsync(
             FileOps::NormalizeExecutablePath(executablePath).string(), args,
             [sid](IN StringView line) {
                 UNUSED(sid);
@@ -379,10 +379,10 @@ namespace IACore
 
         // Give some time for child node to stablize
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        if (!session->ProcessHandle->IsActive())
+        if (!session->NodeProcess->IsActive())
             return MakeUnexpected(std::format("Failed to spawn the child process \"{}\"", executablePath.string()));
 
-        auto processID = session->ProcessHandle->ID.load();
+        auto processID = session->NodeProcess->ID.load();
 
         session->CreationTime = SteadyClock::now();
         m_pendingSessions.push_back(std::move(session));
@@ -398,7 +398,7 @@ namespace IACore
             isPending = false;
             for (auto it = m_pendingSessions.begin(); it != m_pendingSessions.end(); it++)
             {
-                if (it->get()->ProcessHandle->ID.load() == nodeID)
+                if (it->get()->NodeProcess->ID.load() == nodeID)
                 {
                     isPending = true;
                     break;
@@ -417,7 +417,7 @@ namespace IACore
 
         auto &node = itNode->second;
 
-        ProcessOps::TerminateProcess(node->ProcessHandle);
+        ProcessOps::TerminateProcess(node->NodeProcess);
         FileOps::UnmapFile(node->MappedPtr);
         FileOps::UnlinkSharedMemory(node->SharedMemName);
         SocketOps::Close(node->DataSocket);

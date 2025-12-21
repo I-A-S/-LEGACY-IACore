@@ -12,103 +12,74 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++"
+        "WITH_AVX2": "ON",
+        "WITH_NEON": "ON",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/CMake/Triplets",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
-      "name": "windows-base",
-      "hidden": true,
+      "name": "linux-x64",
+      "displayName": "Linux x64 (AVX2)",
       "inherits": "base-common",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      },
       "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Linux",
+        "CMAKE_SYSTEM_PROCESSOR": "x86_64",
+        "CMAKE_C_FLAGS": "-mavx2 -mfma",
+        "CMAKE_CXX_FLAGS": "-mavx2 -mfma",
+        "VCPKG_TARGET_TRIPLET": "x64-linux"
+      }
+    },
+    {
+      "name": "linux-arm64",
+      "displayName": "Linux ARM64 (NEON)",
+      "inherits": "base-common",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Linux",
+        "CMAKE_SYSTEM_PROCESSOR": "aarch64",
+        "CMAKE_C_COMPILER_TARGET": "aarch64-linux-gnu",
+        "CMAKE_CXX_COMPILER_TARGET": "aarch64-linux-gnu",
+        "CMAKE_CXX_FLAGS": "-march=armv8-a+simd",
+        "CMAKE_SYSROOT": "/usr/aarch64-linux-gnu",
+        "VCPKG_TARGET_TRIPLET": "arm64-linux"
+      }
+    },
+    {
+      "name": "windows-x64",
+      "displayName": "Windows x64 (AVX2)",
+      "inherits": "base-common",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_SYSTEM_PROCESSOR": "x86_64",
         "CMAKE_C_COMPILER": "clang-cl",
         "CMAKE_CXX_COMPILER": "clang-cl",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_CXX_FLAGS": "/arch:AVX2",
         "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     },
     {
-      "name": "linux-base",
-      "hidden": true,
+      "name": "windows-arm64",
+      "displayName": "Windows ARM64 (NEON)",
       "inherits": "base-common",
-      "condition": {
-        "type": "notEquals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
-      "name": "windows-default",
-      "displayName": "Windows (Clang-CL + VCPKG)",
-      "description": "Windows build using Clang-CL and VCPKG dependencies",
-      "inherits": "windows-base"
-    },
-    {
-      "name": "linux-default",
-      "displayName": "Linux (Clang)",
-      "description": "Linux build using Clang",
-      "inherits": "linux-base"
-    },
-    {
-      "name": "linux-ci",
-      "displayName": "Linux CI Build",
-      "description": "Linux CI Build",
-      "inherits": "linux-base",
       "cacheVariables": {
-        "IS_CI_BUILD": "ON"
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_SYSTEM_PROCESSOR": "aarch64",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "--target=arm64-pc-windows-msvc -fuse-ld=lld-link",
+        "VCPKG_TARGET_TRIPLET": "arm64-windows"
       }
     },
     {
-      "name": "wasm-default",
-      "displayName": "WebAssembly (Emscripten)",
-      "description": "Build using Emscripten toolchain",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/wasm-release",
-      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "name": "wasm",
+      "displayName": "WebAssembly (SIMD)",
+      "inherits": "base-common",
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS": "-msimd128 -pthread"
-      }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "windows-debug",
-      "configurePreset": "windows-default",
-      "configuration": "Debug",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
-      "name": "linux-debug",
-      "configurePreset": "linux-default",
-      "configuration": "Debug",
-      "condition": {
-        "type": "notEquals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
-      "name": "linux-wasm-debug",
-      "configurePreset": "wasm-default",
-      "configuration": "Debug"
-    },
-    {
-      "name": "linux-ci-release",
-      "configurePreset": "linux-ci",
-      "configuration": "Release",
-      "condition": {
-        "type": "notEquals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
+        "CMAKE_SYSTEM_NAME": "Emscripten",
+        "CMAKE_SYSTEM_PROCESSOR": "wasm32",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-simd",
+        "VCPKG_HOST_TRIPLET": "x64-linux",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
       }
     }
   ]

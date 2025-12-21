@@ -16,6 +16,7 @@ set(TEST_SOURCES
     Main.cpp
     Utils.cpp
     Environment.cpp
+    DataOps.cpp
     ProcessOps.cpp
     StreamReader.cpp
     RingBuffer.cpp

@@ -228,6 +228,7 @@ namespace IACore
         case EHeaderType::WARNING:
             return "Warning";
         }
+        return "<Unknown>";
     }
 
     BOOL HttpClient::IsSuccessResponseCode(IN EResponseCode code)

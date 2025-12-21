@@ -33,8 +33,8 @@ namespace IACore
         STATIC UINT32 Hash_FNV1A(IN CONST String &string);
         STATIC UINT32 Hash_FNV1A(IN Span<CONST UINT8> data);
 
-        STATIC UINT32 Hash_xxHash(IN CONST String &string);
-        STATIC UINT32 Hash_xxHash(IN Span<CONST UINT8> data);
+        STATIC UINT32 Hash_xxHash(IN CONST String &string, IN UINT32 seed = 0);
+        STATIC UINT32 Hash_xxHash(IN Span<CONST UINT8> data, IN UINT32 seed = 0);
 
         STATIC UINT32 CRC32(IN Span<CONST UINT8> data);
 

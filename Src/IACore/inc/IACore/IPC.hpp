@@ -101,7 +101,7 @@ namespace IACore
         struct NodeSession
         {
             SteadyTimePoint CreationTime{};
-            SharedPtr<ProcessHandle> ProcessHandle;
+            SharedPtr<ProcessHandle> NodeProcess;
 
             Mutex SendMutex;
 

@@ -146,8 +146,8 @@ namespace IACore
 namespace IACore
 {
     CONSTEXPR UINT32 XXH_PRIME32_1 = 0x9E3779B1U;
-    CONSTEXPR UINT32 XXH_PRIME32_2 = 0x85EBCA6BU;
-    CONSTEXPR UINT32 XXH_PRIME32_3 = 0xC2B2AE35U;
+    CONSTEXPR UINT32 XXH_PRIME32_2 = 0x85EBCA77U;
+    CONSTEXPR UINT32 XXH_PRIME32_3 = 0xC2B2AE3DU;
     CONSTEXPR UINT32 XXH_PRIME32_4 = 0x27D4EB2FU;
     CONSTEXPR UINT32 XXH_PRIME32_5 = 0x165667B1U;
 
@@ -159,12 +159,12 @@ namespace IACore
         return seed;
     }
 
-    UINT32 DataOps::Hash_xxHash(IN CONST String &string)
+    UINT32 DataOps::Hash_xxHash(IN CONST String &string, IN UINT32 seed)
     {
-        return Hash_xxHash(Span<CONST UINT8>(reinterpret_cast<PCUINT8>(string.data()), string.size()));
+        return Hash_xxHash(Span<CONST UINT8>(reinterpret_cast<PCUINT8>(string.data()), string.length()), seed);
     }
 
-    UINT32 DataOps::Hash_xxHash(IN Span<CONST UINT8> data)
+    UINT32 DataOps::Hash_xxHash(IN Span<CONST UINT8> data, IN UINT32 seed)
     {
         CONST UINT8 *p = data.data();
         CONST UINT8 *CONST bEnd = p + data.size();
@@ -174,10 +174,10 @@ namespace IACore
         {
             const UINT8 *const limit = bEnd - 16;
 
-            UINT32 v1 = XXH_PRIME32_1 + XXH_PRIME32_2;
-            UINT32 v2 = XXH_PRIME32_2;
-            UINT32 v3 = 0;
-            UINT32 v4 = -XXH_PRIME32_1;
+            UINT32 v1 = seed + XXH_PRIME32_1 + XXH_PRIME32_2;
+            UINT32 v2 = seed + XXH_PRIME32_2;
+            UINT32 v3 = seed + 0;
+            UINT32 v4 = seed - XXH_PRIME32_1;
 
             do
             {
@@ -194,13 +194,14 @@ namespace IACore
             h32 = std::rotl(v1, 1) + std::rotl(v2, 7) + std::rotl(v3, 12) + std::rotl(v4, 18);
         }
         else
-            h32 = XXH_PRIME32_5;
+            h32 = seed + XXH_PRIME32_5;
 
         h32 += (UINT32) data.size();
 
         while (p + 4 <= bEnd)
         {
-            h32 += ReadUnaligned<UINT32>(p) * XXH_PRIME32_3;
+            const auto t = ReadUnaligned<UINT32>(p) * XXH_PRIME32_3;
+            h32 += t;
             h32 = std::rotl(h32, 17) * XXH_PRIME32_4;
             p += 4;
         }
