@@ -21,6 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Update Vcpkg Repo
+        run: |
+          cd /opt/vcpkg
+          git fetch --all
+          git pull origin master
+
       - name: Configure
         run: cmake --preset ${{ matrix.target }}
 
@@ -35,6 +41,13 @@ jobs:
         target: [windows-x64, windows-arm64]
     steps:
       - uses: actions/checkout@v4
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Add Clang to PATH
+        run: echo "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm\x64\bin" >> $env:GITHUB_PATH
 
       - name: Upload Error Log
         if: always() # Run even if the build failed
