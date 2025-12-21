@@ -11,6 +11,8 @@
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "WITH_AVX2": "ON",
         "WITH_NEON": "ON",
@@ -77,6 +79,8 @@
       "cacheVariables": {
         "CMAKE_SYSTEM_NAME": "Emscripten",
         "CMAKE_SYSTEM_PROCESSOR": "wasm32",
+        "CMAKE_C_COMPILER": "emcc",
+        "CMAKE_CXX_COMPILER": "em++",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-simd",
         "VCPKG_HOST_TRIPLET": "x64-linux",
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
