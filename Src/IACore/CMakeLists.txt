@@ -22,7 +22,7 @@ target_include_directories(IACore PUBLIC inc/)
 target_include_directories(IACore PRIVATE imp/hpp/)
 
 target_link_libraries(IACore PUBLIC 
-    zlib-ng::zlib    
+    ZLIB::ZLIB   
     zstd::libzstd
     tl::expected 
     glaze::glaze

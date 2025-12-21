@@ -5,11 +5,6 @@
     "dependencies": [
         "openssl",
         "zstd",
-        {
-            "name": "zlib-ng",
-            "features": [
-                "compat"
-            ]
-        }
+        "zlib"
     ]
 }
