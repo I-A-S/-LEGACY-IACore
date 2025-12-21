@@ -50,6 +50,8 @@
 #elif __linux__
 #    define IA_PLATFORM_LINUX 1
 #    define IA_PLATFORM_UNIX 1
+#elif __wasm__
+#    define IA_PLATFORM_WASM 1
 #else
 #    error "IACore: Unsupported Platform. Only Windows, Linux, MacOS, Android and iOS are supported."
 #endif
@@ -97,13 +99,6 @@
 #        define __OPTIMIZE__
 #    endif
 #    define DEBUG_ONLY(f)
-#endif
-
-#if IA_CHECK(IA_PLATFORM_WIN64) || IA_CHECK(IA_PLATFORM_UNIX)
-#    define IA_CORE_PLATFORM_FEATURES 1
-#else
-#    define IA_CORE_PLATFORM_FEATURES 0
-#    warning "IACore Unsupported Platform: Platform specific features will be disabled"
 #endif
 
 #include <assert.h>

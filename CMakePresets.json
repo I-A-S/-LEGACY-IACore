@@ -40,7 +40,9 @@
       "displayName": "Windows x64 (Clang)",
       "inherits": "base-common",
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "windows-x64-clang"
+        "VCPKG_TARGET_TRIPLET": "windows-x64-clang",
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
       }
     },
     {
@@ -48,7 +50,9 @@
       "displayName": "Windows ARM64 (Clang Cross)",
       "inherits": "base-common",
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "windows-arm64-clang"
+        "VCPKG_TARGET_TRIPLET": "windows-arm64-clang",
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
       }
     },
     {
