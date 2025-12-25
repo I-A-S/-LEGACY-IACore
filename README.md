@@ -28,30 +28,6 @@ Originally developed as the internal core for IASoft (PVT) LTD., it is now open-
 * **📜 Logging:** Thread-safe, colored console and disk logging.
 * **⚡ Modern C++:** Heavily utilizes modern C++20 concepts, `std::span`, and `tl::expected` for error handling.
 
-## 🛠️ Integration
-
-IACore is built with CMake. You can include it in your project via `FetchContent` or by adding it as a subdirectory.
-
-**Note:** On Windows, you must have **VCPKG** installed and the `VCPKG_ROOT` environment variable set, for OpenSSL support.
-
-### CMake Example
-```cmake
-add_subdirectory(IACore)
-
-add_executable(MyApp Main.cpp)
-target_link_libraries(MyApp PRIVATE IACore)
-```
-
-## 📦 Dependencies
-IACore manages its own dependencies via CMake's FetchContent. You do not need to install these manually:
-
-* **Networking:** `cpp-httplib`
-* **Compression:** `zlib-ng` & `zstd`
-* **Utilities:** `tl-expected` & `unordered_dense`
-* **JSON:** `glaze`
-
-**Note:** Following dependencies are not directly used by IACore, but bundles them (+ helper wrappers) for user convenience: `nlohmann_json`, `simdjson`, `pugixml`
-
 ## 💡 Usage Examples
 ### 1. IPC (Manager & Node)
 IACore provides a manager/node architecture using shared memory.
@@ -132,6 +108,20 @@ if (res) {
 }
 ```
 
+## 🛠️ Integration
+
+IACore is built with CMake. You can include it in your project via `FetchContent` or by adding it as a subdirectory.
+
+**Note:** On Windows, you must have **VCPKG** installed and the `VCPKG_ROOT` environment variable set, for OpenSSL support.
+
+### CMake Example
+```cmake
+add_subdirectory(IACore)
+
+add_executable(MyApp Main.cpp)
+target_link_libraries(MyApp PRIVATE IACore)
+```
+
 ## 🤝 Contributing
 
 We welcome contributions from the community!
@@ -146,6 +136,17 @@ We welcome contributions from the community!
 Currently, **we are not accepting Pull Requests that modify the core source code (`Src/`)**.
 
 If you find a critical bug in `Src/`, please open an **Issue** rather than a PR, and the core team will implement a fix ASAP.
+
+## 📦 Dependencies
+IACore manages its own dependencies via CMake's FetchContent. You do not need to install these manually:
+
+* **JSON:** `glaze`
+* **SIMD:** `google-highway`
+* **Networking:** `cpp-httplib`
+* **Compression:** `zlib-ng` & `zstd`
+* **Utilities:** `tl-expected` & `unordered_dense`
+
+**Note:** Following dependencies are not directly used by IACore, but bundles them (+ helper wrappers) for user convenience: `nlohmann_json`, `simdjson`, `pugixml`
 
 ## ⚖️ License
 
