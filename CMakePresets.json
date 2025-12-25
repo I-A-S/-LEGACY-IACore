@@ -13,34 +13,26 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "VCPKG_MANIFEST_MODE": "ON",
-        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/CMake/Triplets",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/CMake/Toolchains/${presetName}-clang.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/CMake/Toolchains/${presetName}-clang.cmake"
       }
     },
     {
       "name": "x64-linux",
       "displayName": "Linux x64 (Clang)",
       "inherits": "iacore-base",
-      "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "x64-linux"
-      }
+      "cacheVariables": {}
     },
     {
       "name": "arm64-linux",
       "displayName": "Linux ARM64 (Clang Cross)",
       "inherits": "iacore-base",
-      "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "arm64-linux"
-      }
+      "cacheVariables": {}
     },
     {
       "name": "x64-windows",
       "displayName": "Windows x64 (Clang)",
       "inherits": "iacore-base",
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "x64-windows",
         "CMAKE_C_COMPILER": "clang-cl",
         "CMAKE_CXX_COMPILER": "clang-cl"
       }
@@ -50,7 +42,6 @@
       "displayName": "Windows ARM64 (Clang Cross)",
       "inherits": "iacore-base",
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "arm64-windows",
         "CMAKE_C_COMPILER": "clang-cl",
         "CMAKE_CXX_COMPILER": "clang-cl"
       }
@@ -59,9 +50,7 @@
       "name": "wasm",
       "displayName": "WebAssembly (Clang)",
       "inherits": "iacore-base",
-      "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten"
-      }
+      "cacheVariables": {}
     }
   ],
   "buildPresets": [

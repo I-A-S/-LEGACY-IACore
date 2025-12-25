@@ -24,7 +24,7 @@ target_include_directories(IACore PRIVATE imp/hpp/)
 
 target_link_libraries(IACore PUBLIC
     hwy
-    ZLIB::ZLIB   
+    zlib   
     zstd::libzstd
     tl::expected 
     glaze::glaze
@@ -78,7 +78,7 @@ if(IACORE_ARCH_X64)
     if(MSVC)
         target_compile_options(IACore INTERFACE /arch:AVX2)
     else()
-        target_compile_options(IACore INTERFACE -mavx2 -mfma -mpclmul -maes -mbmi)
+        target_compile_options(IACore INTERFACE -mavx2 -mfma -mpclmul -maes -mbmi -mbmi2)
     endif()
     target_compile_definitions(IACore INTERFACE HWY_BASELINE_TARGETS=HWY_AVX2)
 elseif(IACORE_ARCH_ARM64)

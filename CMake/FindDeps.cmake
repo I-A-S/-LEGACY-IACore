@@ -1,5 +1,7 @@
 include(FetchContent)
 
+find_package(OpenSSL 3.0.0 REQUIRED)
+
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Force static libs")
 
 set(HWY_ENABLE_TESTS OFF CACHE BOOL "Disable Highway tests" FORCE)
@@ -7,10 +9,30 @@ set(HWY_ENABLE_EXAMPLES OFF CACHE BOOL "Disable Highway examples" FORCE)
 set(HWY_ENABLE_CONTRIB OFF CACHE BOOL "Disable Highway contrib" FORCE)
 set(HWY_ENABLE_INSTALL OFF CACHE BOOL "Disable Highway install rules" FORCE)
 
-set(ZLIB_USE_STATIC_LIBS ON)
-find_package(ZLIB REQUIRED)
-find_package(zstd CONFIG REQUIRED)
-find_package(OpenSSL 3.0.0 REQUIRED)
+set(ZLIB_USE_STATIC_LIBS ON CACHE BOOL "" FORCE)
+set(ZLIB_COMPAT ON CACHE BOOL "" FORCE)
+set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(WITH_GZFILEOP ON CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+    zlib
+    GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+    GIT_TAG        2.1.6
+    OVERRIDE_FIND_PACKAGE
+)
+
+set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_STATIC ON CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+    zstd
+    GIT_REPOSITORY https://github.com/facebook/zstd.git
+    GIT_TAG        v1.5.5
+    SOURCE_SUBDIR  build/cmake
+    OVERRIDE_FIND_PACKAGE
+)
 
 FetchContent_Declare(
   httplib
@@ -99,7 +121,15 @@ set(HTTPLIB_COMPILE OFF CACHE BOOL "" FORCE)
 set(HTTPLIB_TEST OFF CACHE BOOL "" FORCE)
 set(HTTPLIB_EXAMPLE OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(httplib pugixml nlohmann_json glaze simdjson tl-expected unordered_dense mimalloc highway)
+FetchContent_MakeAvailable(zlib zstd httplib pugixml nlohmann_json glaze simdjson tl-expected unordered_dense mimalloc highway)
+
+if(NOT TARGET simdjson::simdjson)
+    add_library(simdjson::simdjson ALIAS simdjson)
+endif()
+
+if(NOT TARGET zstd::libzstd)
+    add_library(zstd::libzstd ALIAS libzstd_static)
+endif()
 
 get_target_property(HWY_INCLUDE_DIRS hwy INTERFACE_INCLUDE_DIRECTORIES)
 target_include_directories(hwy SYSTEM INTERFACE ${HWY_INCLUDE_DIRS})
