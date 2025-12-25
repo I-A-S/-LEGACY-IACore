@@ -21,11 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update Vcpkg Repo
-        run: |
-          cd /opt/vcpkg
-          git fetch --all
-          git pull origin master
+      - name: Install OpenSSL v3 (System)
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev
 
       - name: Configure
         run: cmake --preset ${{ matrix.target }}

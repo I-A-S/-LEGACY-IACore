@@ -18,19 +18,19 @@
     },
     {
       "name": "x64-linux",
-      "displayName": "Linux x64 (Clang)",
+      "displayName": "IACore Linux x64 (Clang)",
       "inherits": "iacore-base",
       "cacheVariables": {}
     },
     {
       "name": "arm64-linux",
-      "displayName": "Linux ARM64 (Clang Cross)",
+      "displayName": "IACore Linux ARM64 (Clang Cross)",
       "inherits": "iacore-base",
       "cacheVariables": {}
     },
     {
       "name": "x64-windows",
-      "displayName": "Windows x64 (Clang)",
+      "displayName": "IACore Windows x64 (Clang)",
       "inherits": "iacore-base",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl",
@@ -39,7 +39,7 @@
     },
     {
       "name": "arm64-windows",
-      "displayName": "Windows ARM64 (Clang Cross)",
+      "displayName": "IACore Windows ARM64 (Clang Cross)",
       "inherits": "iacore-base",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl",
@@ -48,7 +48,7 @@
     },
     {
       "name": "wasm",
-      "displayName": "WebAssembly (Clang)",
+      "displayName": "IACore WebAssembly (Clang)",
       "inherits": "iacore-base",
       "cacheVariables": {}
     }
