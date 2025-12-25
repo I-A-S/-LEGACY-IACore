@@ -100,3 +100,6 @@ set(HTTPLIB_TEST OFF CACHE BOOL "" FORCE)
 set(HTTPLIB_EXAMPLE OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(httplib pugixml nlohmann_json glaze simdjson tl-expected unordered_dense mimalloc highway)
+
+get_target_property(HWY_INCLUDE_DIRS hwy INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(hwy SYSTEM INTERFACE ${HWY_INCLUDE_DIRS})
