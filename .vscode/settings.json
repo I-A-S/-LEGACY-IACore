@@ -1,4 +1,5 @@
 {
     "editor.formatOnSave": true,
-    "C_Cpp.clang_format_fallbackStyle": "Microsoft"
+    "C_Cpp.clang_format_fallbackStyle": "Microsoft",
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json"
 }

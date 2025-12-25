@@ -51,3 +51,4 @@
 .local/
 out/
 [Bb]uild
+/compile_commands.json
