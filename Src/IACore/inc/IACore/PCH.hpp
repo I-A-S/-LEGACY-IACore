@@ -189,6 +189,7 @@
 #    define OVERRIDE override
 #    define CONSTEXPR constexpr
 #    define CONSTEVAL consteval
+#    define EXPLICIT explicit
 #    define NOEXCEPT noexcept
 #    define NULLPTR nullptr
 #    define IA_MOVE(...) std::move(__VA_ARGS__)
@@ -199,6 +200,7 @@
 #    define OVERRIDE
 #    define CONSTEXPR const
 #    define CONSTEVAL
+#    define EXPLICIT
 #    define NOEXCEPT
 #    define NULLPTR NULL
 #    define IA_MOVE(...) (__VA_ARGS__)
@@ -241,7 +243,7 @@
 #define __INTERNAL_IA_STRINGIFY(value) #value
 #define IA_STRINGIFY(value) __INTERNAL_IA_STRINGIFY(value)
 
-#define ALIGN(a) __attribute__((aligned(a)))
+#define ALIGN(a) alignas(a)
 
 #define ASM(...) __asm__ volatile(__VA_ARGS__)
 

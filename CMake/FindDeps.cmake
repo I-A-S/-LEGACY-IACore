@@ -2,6 +2,11 @@ include(FetchContent)
 
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Force static libs")
 
+set(HWY_ENABLE_TESTS OFF CACHE BOOL "Disable Highway tests" FORCE)
+set(HWY_ENABLE_EXAMPLES OFF CACHE BOOL "Disable Highway examples" FORCE)
+set(HWY_ENABLE_CONTRIB OFF CACHE BOOL "Disable Highway contrib" FORCE)
+set(HWY_ENABLE_INSTALL OFF CACHE BOOL "Disable Highway install rules" FORCE)
+
 set(ZLIB_USE_STATIC_LIBS ON)
 find_package(ZLIB REQUIRED)
 find_package(zstd CONFIG REQUIRED)
@@ -74,6 +79,12 @@ FetchContent_Declare(
   EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+  highway
+  GIT_REPOSITORY https://github.com/google/highway.git
+  GIT_TAG        1.3.0  
+)
+
 set(MI_OVERRIDE ON CACHE BOOL "" FORCE)
 set(MI_BUILD_STATIC ON CACHE BOOL "" FORCE)
 set(MI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -88,4 +99,4 @@ set(HTTPLIB_COMPILE OFF CACHE BOOL "" FORCE)
 set(HTTPLIB_TEST OFF CACHE BOOL "" FORCE)
 set(HTTPLIB_EXAMPLE OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(httplib pugixml nlohmann_json glaze simdjson tl-expected unordered_dense mimalloc)
+FetchContent_MakeAvailable(httplib pugixml nlohmann_json glaze simdjson tl-expected unordered_dense mimalloc highway)

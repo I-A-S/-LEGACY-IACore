@@ -1,6 +1,7 @@
 set(SRC_FILES
     "imp/cpp/IPC.cpp"
     "imp/cpp/XML.cpp"
+    "imp/cpp/SIMD.cpp"
     "imp/cpp/JSON.cpp"
     "imp/cpp/IACore.cpp"
     "imp/cpp/Logger.cpp"
@@ -21,7 +22,8 @@ add_library(IACore STATIC ${SRC_FILES})
 target_include_directories(IACore PUBLIC inc/)
 target_include_directories(IACore PRIVATE imp/hpp/)
 
-target_link_libraries(IACore PUBLIC 
+target_link_libraries(IACore PUBLIC
+    hwy
     ZLIB::ZLIB   
     zstd::libzstd
     tl::expected 
@@ -71,3 +73,20 @@ target_compile_definitions(IACore PUBLIC
     $<$<CONFIG:Debug>:__IA_DEBUG=1>
     $<$<CONFIG:Release>:__IA_DEBUG=0>
 )
+
+if(IACORE_ARCH_X64)
+    if(MSVC)
+        target_compile_options(IACore INTERFACE /arch:AVX2)
+    else()
+        target_compile_options(IACore INTERFACE -mavx2 -mfma)
+    endif()
+    target_compile_definitions(IACore INTERFACE HWY_BASELINE_TARGETS=HWY_AVX2)
+elseif(IACORE_ARCH_ARM64)
+    if(NOT MSVC)
+        target_compile_options(IACore INTERFACE -march=armv8-a+simd)
+    endif()
+    target_compile_definitions(IACore INTERFACE HWY_BASELINE_TARGETS=HWY_NEON)
+elseif(IACORE_ARCH_WASM)
+    target_compile_options(IACore INTERFACE -msimd128)
+    target_compile_definitions(IACore INTERFACE HWY_BASELINE_TARGETS=HWY_WASM)
+endif()

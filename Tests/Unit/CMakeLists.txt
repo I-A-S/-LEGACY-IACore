@@ -20,6 +20,9 @@ set(TEST_SOURCES
     ProcessOps.cpp
     StreamReader.cpp
     RingBuffer.cpp
+
+    SIMD/IntVec4.cpp
+    SIMD/FloatVec4.cpp
 )
 
 add_executable(IACore_Test_Suite ${TEST_SOURCES})
