@@ -18,10 +18,41 @@
 #include <IACore/StreamReader.hpp>
 #include <IACore/StreamWriter.hpp>
 
+#if IA_PLATFORM_WINDOWS
+using NativeFileHandle = HANDLE;
+STATIC CONSTEXPR NativeFileHandle INVALID_FILE_HANDLE = INVALID_HANDLE_VALUE;
+#else
+using NativeFileHandle = int;
+STATIC CONSTEXPR NativeFileHandle INVALID_FILE_HANDLE = -1;
+#endif
+
 namespace IACore
 {
     class FileOps
     {
+      public:
+        class MemoryMappedRegion;
+
+        enum class EFileAccess : UINT8
+        {
+            READ,      // Read-only
+            WRITE,     // Write-only
+            READ_WRITE // Read and Write
+        };
+
+        enum class EFileMode : UINT8
+        {
+            OPEN_EXISTING,    // Fails if file doesn't exist
+            OPEN_ALWAYS,      // Opens if exists, creates if not
+            CREATE_NEW,       // Fails if file exists
+            CREATE_ALWAYS,    // Overwrites existing
+            TRUNCATE_EXISTING // Opens existing and clears it
+        };
+
+        STATIC Expected<NativeFileHandle, String> NativeOpenFile(IN CONST FilePath &path, IN EFileAccess access,
+                                                                 IN EFileMode mode, IN UINT32 permissions = 0644);
+        STATIC VOID NativeCloseFile(IN NativeFileHandle handle);
+
       public:
         STATIC FilePath NormalizeExecutablePath(IN CONST FilePath &path);
 
@@ -45,5 +76,46 @@ namespace IACore
 
       private:
         STATIC UnorderedMap<PCUINT8, Tuple<PVOID, PVOID, PVOID>> s_mappedFiles;
+    };
+
+    class FileOps::MemoryMappedRegion
+    {
+      public:
+        MemoryMappedRegion() = default;
+        ~MemoryMappedRegion();
+
+        MemoryMappedRegion(CONST MemoryMappedRegion &) = delete;
+        MemoryMappedRegion &operator=(CONST MemoryMappedRegion &) = delete;
+
+        MemoryMappedRegion(MemoryMappedRegion &&other) NOEXCEPT;
+        MemoryMappedRegion &operator=(MemoryMappedRegion &&other) NOEXCEPT;
+
+        Expected<VOID, String> Map(NativeFileHandle handle, UINT64 offset, SIZE_T size);
+
+        VOID Unmap();
+        VOID Flush();
+
+        PUINT8 GetPtr() CONST
+        {
+            return m_ptr;
+        }
+
+        SIZE_T GetSize() CONST
+        {
+            return m_size;
+        }
+
+        BOOL IsValid() CONST
+        {
+            return m_ptr != nullptr;
+        }
+
+      private:
+        PUINT8 m_ptr{nullptr};
+        SIZE_T m_size{0};
+
+#if IA_PLATFORM_WINDOWS
+        HANDLE m_hMap{NULL};
+#endif
     };
 } // namespace IACore

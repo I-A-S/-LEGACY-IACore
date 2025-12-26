@@ -279,3 +279,239 @@ namespace IACore
         return result;
     }
 } // namespace IACore
+
+namespace IACore
+{
+    Expected<NativeFileHandle, String> FileOps::NativeOpenFile(IN CONST FilePath &path, IN EFileAccess access,
+                                                               IN EFileMode mode, IN UINT32 permissions)
+    {
+#if IA_PLATFORM_WINDOWS
+        DWORD dwAccess = 0;
+        DWORD dwShare = FILE_SHARE_READ;
+        DWORD dwDisposition = 0;
+        DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+
+        switch (access)
+        {
+        case EFileAccess::READ:
+            dwAccess = GENERIC_READ;
+            break;
+        case EFileAccess::WRITE:
+            dwAccess = GENERIC_WRITE;
+            break;
+        case EFileAccess::READ_WRITE:
+            dwAccess = GENERIC_READ | GENERIC_WRITE;
+            break;
+        }
+
+        switch (mode)
+        {
+        case EFileMode::OPEN_EXISTING:
+            dwDisposition = OPEN_EXISTING;
+            break;
+        case EFileMode::OPEN_ALWAYS:
+            dwDisposition = OPEN_ALWAYS;
+            break;
+        case EFileMode::CREATE_NEW:
+            dwDisposition = CREATE_NEW;
+            break;
+        case EFileMode::CREATE_ALWAYS:
+            dwDisposition = CREATE_ALWAYS;
+            break;
+        case EFileMode::TRUNCATE_EXISTING:
+            dwDisposition = TRUNCATE_EXISTING;
+            break;
+        }
+
+        HANDLE hFile =
+            CreateFileA(path.string().c_str(), dwAccess, dwShare, NULL, dwDisposition, dwFlagsAndAttributes, NULL);
+
+        if (hFile == INVALID_HANDLE_VALUE)
+            return MakeUnexpected(std::format("Failed to open file '{}': {}", path.string(), GetLastError()));
+
+        return hFile;
+
+#elif IA_PLATFORM_UNIX
+        int flags = 0;
+
+        switch (access)
+        {
+        case EFileAccess::READ:
+            flags = O_RDONLY;
+            break;
+        case EFileAccess::WRITE:
+            flags = O_WRONLY;
+            break;
+        case EFileAccess::READ_WRITE:
+            flags = O_RDWR;
+            break;
+        }
+
+        switch (mode)
+        {
+        case EFileMode::OPEN_EXISTING:
+            break;
+        case EFileMode::OPEN_ALWAYS:
+            flags |= O_CREAT;
+            break;
+        case EFileMode::CREATE_NEW:
+            flags |= O_CREAT | O_EXCL;
+            break;
+        case EFileMode::CREATE_ALWAYS:
+            flags |= O_CREAT | O_TRUNC;
+            break;
+        case EFileMode::TRUNCATE_EXISTING:
+            flags |= O_TRUNC;
+            break;
+        }
+
+        int fd = open(path.string().c_str(), flags, permissions);
+
+        if (fd == -1)
+        {
+            return MakeUnexpected(std::format("Failed to open file '{}': {}", path.string(), errno));
+        }
+
+        return fd;
+#endif
+    }
+
+    VOID FileOps::NativeCloseFile(IN NativeFileHandle handle)
+    {
+        if (handle == INVALID_FILE_HANDLE)
+            return;
+
+#if IA_PLATFORM_WINDOWS
+        CloseHandle(handle);
+#elif IA_PLATFORM_UNIX
+        close(handle);
+#endif
+    }
+
+    FileOps::MemoryMappedRegion::~MemoryMappedRegion()
+    {
+        Unmap();
+    }
+
+    FileOps::MemoryMappedRegion::MemoryMappedRegion(MemoryMappedRegion &&other) NOEXCEPT
+    {
+        *this = std::move(other);
+    }
+
+    FileOps::MemoryMappedRegion &FileOps::MemoryMappedRegion::operator=(MemoryMappedRegion &&other) NOEXCEPT
+    {
+        if (this != &other)
+        {
+            Unmap();
+            m_ptr = other.m_ptr;
+            m_size = other.m_size;
+#if IA_PLATFORM_WINDOWS
+            m_hMap = other.m_hMap;
+            other.m_hMap = NULL;
+#endif
+            other.m_ptr = nullptr;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+
+    Expected<VOID, String> FileOps::MemoryMappedRegion::Map(NativeFileHandle handle, UINT64 offset, SIZE_T size)
+    {
+        Unmap();
+
+        if (handle == INVALID_FILE_HANDLE)
+            return MakeUnexpected("Invalid file handle provided to Map");
+
+        if (size == 0)
+            return MakeUnexpected("Cannot map region of size 0");
+
+#if IA_PLATFORM_WINDOWS
+        LARGE_INTEGER fileSize;
+        if (!GetFileSizeEx(handle, &fileSize))
+            return MakeUnexpected("Failed to get file size");
+
+        UINT64 endOffset = offset + size;
+        if (static_cast<UINT64>(fileSize.QuadPart) < endOffset)
+        {
+            LARGE_INTEGER newSize;
+            newSize.QuadPart = endOffset;
+            if (!SetFilePointerEx(handle, newSize, NULL, FILE_BEGIN))
+                return MakeUnexpected("Failed to seek to new end of file");
+
+            if (!SetEndOfFile(handle))
+                return MakeUnexpected("Failed to extend file for mapping");
+        }
+
+        m_hMap = CreateFileMappingW(handle, NULL, PAGE_READWRITE, 0, 0, NULL);
+        if (m_hMap == NULL)
+            return MakeUnexpected(std::format("CreateFileMapping failed: {}", GetLastError()));
+
+        DWORD offsetHigh = static_cast<DWORD>(offset >> 32);
+        DWORD offsetLow = static_cast<DWORD>(offset & 0xFFFFFFFF);
+
+        m_ptr = static_cast<PUINT8>(MapViewOfFile(m_hMap, FILE_MAP_WRITE, offsetHigh, offsetLow, size));
+        if (m_ptr == NULL)
+        {
+            CloseHandle(m_hMap);
+            m_hMap = NULL;
+            return MakeUnexpected(
+                std::format("MapViewOfFile failed (Offset: {}, Size: {}): {}", offset, size, GetLastError()));
+        }
+        m_size = size;
+
+#elif IA_PLATFORM_UNIX
+        struct stat sb;
+        if (fstat(handle, &sb) == -1)
+            return MakeUnexpected("Failed to fstat file");
+
+        UINT64 endOffset = offset + size;
+        if (static_cast<UINT64>(sb.st_size) < endOffset)
+        {
+            if (ftruncate(handle, endOffset) == -1)
+                return MakeUnexpected("Failed to ftruncate (extend) file");
+        }
+
+        void *ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, static_cast<off_t>(offset));
+        if (ptr == MAP_FAILED)
+            return MakeUnexpected(std::format("mmap failed: {}", errno));
+
+        m_ptr = static_cast<PUINT8>(ptr);
+        m_size = size;
+
+        madvise(m_ptr, m_size, MADV_SEQUENTIAL);
+#endif
+
+        return {};
+    }
+
+    VOID FileOps::MemoryMappedRegion::Unmap()
+    {
+        if (!m_ptr)
+            return;
+
+#if IA_PLATFORM_WINDOWS
+        UnmapViewOfFile(m_ptr);
+        if (m_hMap)
+        {
+            CloseHandle(m_hMap);
+            m_hMap = NULL;
+        }
+#elif IA_PLATFORM_UNIX
+        munmap(m_ptr, m_size);
+#endif
+        m_ptr = nullptr;
+        m_size = 0;
+    }
+
+    VOID FileOps::MemoryMappedRegion::Flush()
+    {
+        if (!m_ptr)
+            return;
+
+#if IA_PLATFORM_WINDOWS
+        FlushViewOfFile(m_ptr, m_size);
+#elif IA_PLATFORM_UNIX
+        msync(m_ptr, m_size, MS_SYNC);
+#endif
+    }
+} // namespace IACore

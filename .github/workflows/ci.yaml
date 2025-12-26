@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install OpenSSL v3 (System)
-        run: sudo dnf update && sudo dnf install -y libssl-dev
+        run: sudo dnf install -y openssl-devel
 
       - name: Configure
         run: cmake --preset ${{ matrix.target }}
