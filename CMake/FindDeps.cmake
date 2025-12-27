@@ -124,6 +124,10 @@ set(HTTPLIB_EXAMPLE OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(zlib zstd)
 
+target_include_directories(libzstd_static INTERFACE
+    $<BUILD_INTERFACE:${zstd_SOURCE_DIR}/lib>
+)
+
 if(NOT TARGET zstd::libzstd)
     add_library(zstd::libzstd ALIAS libzstd_static)
 endif()
