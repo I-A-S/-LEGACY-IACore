@@ -40,6 +40,11 @@ namespace IACore
         Logger::Terminate();
     }
 
+    BOOL IsInitialized()
+    {
+        return g_coreInitCount > 0;
+    }
+
     UINT64 GetUnixTime()
     {
         auto now = std::chrono::system_clock::now();

@@ -56,6 +56,8 @@ namespace IACore
     // Safe to call multiple times but, every Initialize call is paired with a corresponding Terminate call
     VOID Terminate();
 
+    BOOL IsInitialized();
+
     UINT64 GetUnixTime();
     UINT64 GetTicksCount();
     FLOAT64 GetSecondsCount();

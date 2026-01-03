@@ -4,8 +4,6 @@ set(CMAKE_C_COMPILER clang-cl)
 set(CMAKE_CXX_COMPILER clang-cl)
 set(CMAKE_RC_COMPILER llvm-rc)
 
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
 set(CMAKE_LINKER lld-link)
 
 set(triple arm64-pc-windows-msvc)
