@@ -12,6 +12,7 @@ Example CMakeLists.txt
 cmake_minimum_required(VERSION 3.28)
 project(MyGame)
 
+# Or you can use FetchContent
 add_subdirectory(external/IACore)
 
 ## Apply IACore's standard project configuration

@@ -9,12 +9,12 @@
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey.svg" alt="Platform"/>
 
   <p>
-    <b>The Battery-Included Foundation for High-Performance C++ Applications.</b>
+    <b>A High-Performance Foundation for Modern C++ 20 Applications.</b>
   </p>
 </div>
 
 ## 📖 Description
-IACore is a high-performance, battery-included C++20 foundation library designed to eliminate "dependency hell." It bundles essential systems—IPC, Logging, Networking, Compression, and Async Scheduling—into a single, coherent API.
+IACore is a high-performance C++20 foundation library bundling essential systems (IPC, Logging, Networking, Compression, and Async Scheduling) into a single, coherent API.
 
 Originally developed as the internal core for IASoft (PVT) LTD., it is now open-source to provide a standardized bedrock for C++ applications where performance matters.
 
