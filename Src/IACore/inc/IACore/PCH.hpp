@@ -596,6 +596,7 @@ template<typename T, typename... Args> inline SharedPtr<T> MakeUniqueProtected(A
 template<typename _expected_type, typename _unexpected_type>
 using Expected = tl::expected<_expected_type, _unexpected_type>;
 ALIAS_FUNCTION(MakeUnexpected, tl::make_unexpected);
+#    define EXPECT(type) Expected<type, String>
 
 using String = std::string;
 using StringView = std::string_view;
