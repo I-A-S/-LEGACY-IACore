@@ -236,7 +236,6 @@ namespace IACore
             return MakeUnexpected(std::format("Failed to write to file: {}", path.string().c_str()));
         }
         const auto result = fwrite(contents.data(), 1, contents.size(), f);
-        fputc(0, f);
         fclose(f);
         return result;
     }
