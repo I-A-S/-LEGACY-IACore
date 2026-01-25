@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (Linux)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+                "dummy"
+            ],
+            "cwd": "${workspaceFolder}/",
+            "preLaunchTask": "CMake Build"
+        }
+    ]
+}

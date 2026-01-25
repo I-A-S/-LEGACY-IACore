@@ -1,0 +1,95 @@
+// IACore-OSS; The Core Library for All IA Open Source Projects
+// Copyright (C) 2026 IAS (ias@iasoft.dev)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#pragma once
+
+#include <IACore/Http/Common.hpp>
+#include <IACore/JSON.hpp>
+
+namespace IACore {
+class HttpClient : public HttpCommon {
+public:
+  static auto create(Ref<String> host) -> Result<Box<HttpClient>>;
+
+  ~HttpClient();
+
+  HttpClient(ForwardRef<HttpClient>) = default;
+  HttpClient(Ref<HttpClient>) = delete;
+  auto operator=(ForwardRef<HttpClient>) -> MutRef<HttpClient> = default;
+  auto operator=(Ref<HttpClient>) -> MutRef<HttpClient> = delete;
+
+public:
+  auto raw_get(Ref<String> path, Span<Const<Header>> headers,
+               Const<char> *default_content_type =
+                   "application/x-www-form-urlencoded") -> Result<String>;
+
+  auto raw_post(Ref<String> path, Span<Const<Header>> headers, Ref<String> body,
+                Const<char> *default_content_type =
+                    "application/x-www-form-urlencoded") -> Result<String>;
+
+  template <typename ResponseType>
+  auto json_get(Ref<String> path, Span<Const<Header>> headers)
+      -> Result<ResponseType>;
+
+  template <typename PayloadType, typename ResponseType>
+  auto json_post(Ref<String> path, Span<Const<Header>> headers,
+                 Ref<PayloadType> body) -> Result<ResponseType>;
+
+  // Certificate verification is enabled by default
+  auto enable_certificate_verification() -> void;
+  auto disable_certificate_verification() -> void;
+
+public:
+  auto last_response_code() -> EResponseCode { return m_last_response_code; }
+
+private:
+  Mut<httplib::Client> m_client;
+  Mut<EResponseCode> m_last_response_code;
+
+private:
+  auto preprocess_response(Ref<String> response) -> String;
+
+protected:
+  explicit HttpClient(ForwardRef<httplib::Client> client);
+};
+
+template <typename ResponseType>
+auto HttpClient::json_get(Ref<String> path, Span<Const<Header>> headers)
+    -> Result<ResponseType> {
+  Const<String> raw_response =
+      OX_TRY(raw_get(path, headers, "application/json"));
+
+  if (last_response_code() != EResponseCode::OK) {
+    return fail("Server responded with code {}",
+                static_cast<i32>(last_response_code()));
+  }
+  return Json::parse_to_struct<ResponseType>(raw_response);
+}
+
+template <typename PayloadType, typename ResponseType>
+auto HttpClient::json_post(Ref<String> path, Span<Const<Header>> headers,
+                           Ref<PayloadType> body) -> Result<ResponseType> {
+  Const<String> encoded_body = OX_TRY(Json::encode_struct(body));
+
+  Const<String> raw_response =
+      OX_TRY(raw_post(path, headers, encoded_body, "application/json"));
+
+  if (last_response_code() != EResponseCode::OK) {
+    return fail("Server responded with code {}",
+                static_cast<i32>(last_response_code()));
+  }
+  return Json::parse_to_struct<ResponseType>(raw_response);
+}
+} // namespace IACore

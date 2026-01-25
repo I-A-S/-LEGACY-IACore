@@ -1,0 +1,78 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28
+  },
+  "configurePresets": [
+    {
+      "name": "iacore-base",
+      "hidden": true,
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/CMake/Toolchains/${presetName}-clang.cmake"
+      }
+    },
+    {
+      "name": "x64-linux",
+      "displayName": "IACore Linux x64 (Clang)",
+      "inherits": "iacore-base",
+      "cacheVariables": {}
+    },
+    {
+      "name": "arm64-linux",
+      "displayName": "IACore Linux ARM64 (Clang Cross)",
+      "inherits": "iacore-base",
+      "cacheVariables": {}
+    },
+    {
+      "name": "x64-windows",
+      "displayName": "IACore Windows x64 (Clang)",
+      "inherits": "iacore-base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
+      }
+    },
+    {
+      "name": "arm64-windows",
+      "displayName": "IACore Windows ARM64 (Clang Cross)",
+      "inherits": "iacore-base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
+      }
+    },
+    {
+      "name": "wasm",
+      "displayName": "IACore WebAssembly (Clang)",
+      "inherits": "iacore-base",
+      "cacheVariables": {}
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-linux",
+      "configurePreset": "x64-linux"
+    },
+    {
+      "name": "arm64-linux",
+      "configurePreset": "arm64-linux"
+    },
+    {
+      "name": "x64-windows",
+      "configurePreset": "x64-windows"
+    },
+    {
+      "name": "arm64-windows",
+      "configurePreset": "arm64-windows"
+    },
+    {
+      "name": "wasm",
+      "configurePreset": "wasm"
+    }
+  ]
+}
