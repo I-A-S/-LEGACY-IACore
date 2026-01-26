@@ -17,8 +17,6 @@
 
 #include <IACore/JSON.hpp>
 
-#include <httplib.h>
-
 namespace IACore
 {
   class HttpCommon

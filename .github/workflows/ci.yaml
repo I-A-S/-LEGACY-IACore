@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "win-build-fix" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 

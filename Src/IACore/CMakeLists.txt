@@ -18,8 +18,8 @@ set(SRC_FILES
     "imp/cpp/StreamWriter.cpp"
 
     "imp/cpp/Http/Common.cpp"
-    "imp/cpp/Http/Client.cpp"
-    "imp/cpp/Http/Server.cpp"
+    #"imp/cpp/Http/Client.cpp"
+    #"imp/cpp/Http/Server.cpp"
 )
 
 add_library(IACore STATIC ${SRC_FILES})
@@ -33,7 +33,7 @@ target_link_libraries(IACore PUBLIC
     Auxid
     zstd::libzstd
     glaze::glaze
-    httplib::httplib
+    mimalloc-static
     pugixml::pugixml
     simdjson::simdjson
     nlohmann_json::nlohmann_json
@@ -41,11 +41,8 @@ target_link_libraries(IACore PUBLIC
 )
 
 target_link_libraries(IACore PRIVATE 
-    OpenSSL::SSL 
-    OpenSSL::Crypto
+    ${LIBCURL_TARGET}
 )
-
-target_link_libraries(IACore PUBLIC mimalloc-static)
 
 if(WIN32)
     if(MSVC)
@@ -53,6 +50,8 @@ if(WIN32)
     else()
         target_link_options(IACore PUBLIC "")
     endif()
+
+    target_link_libraries(IACore PRIVATE ws2_32 crypt32)
 endif()
 
 target_precompile_headers(IACore PUBLIC inc/IACore/PCH.hpp)

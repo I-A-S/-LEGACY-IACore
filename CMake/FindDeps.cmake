@@ -1,8 +1,35 @@
 include(FetchContent)
 
-find_package(OpenSSL 3.0.0 REQUIRED)
-
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Force static libs")
+
+if(WIN32)
+    message(STATUS "Configuring libcurl for Windows (Schannel Backend)...")
+
+    set(CURL_USE_SCHANNEL ON CACHE BOOL "" FORCE)
+    set(CURL_USE_OPENSSL OFF CACHE BOOL "" FORCE)
+    
+    set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)  
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_LDAP ON CACHE BOOL "" FORCE) 
+    set(CURL_DISABLE_LDAPS ON CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(
+        curl
+        GIT_REPOSITORY https://github.com/curl/curl.git
+        GIT_TAG        curl-8_11_1 
+    )
+
+    FetchContent_MakeAvailable(curl)
+
+    set(LIBCURL_TARGET libcurl_static)
+elseif(UNIX AND NOT APPLE)
+    message(STATUS "Configuring libcurl for Linux (System Backend)...")
+    
+    find_package(CURL REQUIRED)
+    
+    set(LIBCURL_TARGET CURL::libcurl)
+endif()
 
 set(HWY_ENABLE_TESTS OFF CACHE BOOL "Disable Highway tests" FORCE)
 set(HWY_ENABLE_EXAMPLES OFF CACHE BOOL "Disable Highway examples" FORCE)
@@ -39,14 +66,6 @@ FetchContent_Declare(
     GIT_TAG        v1.5.5
     SOURCE_SUBDIR  build/cmake
     OVERRIDE_FIND_PACKAGE
-)
-
-FetchContent_Declare(
-  httplib
-  GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-  GIT_TAG        v0.28.0
-  SYSTEM
-  EXCLUDE_FROM_ALL
 )
 
 FetchContent_Declare(
@@ -135,7 +154,7 @@ if(NOT TARGET zstd::libzstd)
     add_library(zstd::libzstd ALIAS libzstd_static)
 endif()
 
-FetchContent_MakeAvailable(Auxid httplib pugixml nlohmann_json glaze simdjson unordered_dense mimalloc highway)
+FetchContent_MakeAvailable(Auxid pugixml nlohmann_json glaze simdjson unordered_dense mimalloc highway)
 
 if(NOT TARGET simdjson::simdjson)
     add_library(simdjson::simdjson ALIAS simdjson)
