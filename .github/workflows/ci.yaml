@@ -1,8 +1,9 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "win-build-fix" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
