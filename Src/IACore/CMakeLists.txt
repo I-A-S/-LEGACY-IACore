@@ -87,6 +87,11 @@ target_compile_definitions(IACore PUBLIC
 if(IACORE_ARCH_X64)
     if(MSVC)
         target_compile_options(IACore INTERFACE /arch:AVX2)
+
+        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            target_compile_options(IACore INTERFACE /clang:-maes)
+        endif()
+        
     else()
         target_compile_options(IACore INTERFACE -mavx2 -mfma -mpclmul -maes -mbmi -mbmi2 -mf16c)
     endif()
