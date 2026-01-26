@@ -68,18 +68,18 @@
 
 #include <ankerl/unordered_dense.h>
 
-#include <oxide/oxide.hpp>
+#include <auxid/auxid.hpp>
 
 namespace IACore {
 
-using namespace Oxide;
+using namespace Auxid;
 
 // =============================================================================
 // Build Environment & Constants
 // =============================================================================
 namespace Env {
 
-using namespace Oxide::Env;
+using namespace Auxid::Env;
 
 #if IA_PLATFORM_WINDOWS
 constexpr Const<bool> IS_WINDOWS = true;

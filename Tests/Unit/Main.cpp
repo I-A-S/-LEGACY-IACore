@@ -23,7 +23,7 @@ using namespace IACore;
 IACORE_MAIN() {
   (void)args;
 
-  OX_TRY_PURE(SocketOps::initialize());
+  AU_TRY_PURE(SocketOps::initialize());
 
   std::cout
       << console::GREEN

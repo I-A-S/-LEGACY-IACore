@@ -86,11 +86,11 @@ auto IpcNode::connect(Const<const char *> connection_string) -> Result<void> {
   Ref<IpcConnectionDescriptor> desc = *desc_opt;
   m_shm_name = desc.shared_mem_path;
 
-  m_socket = OX_TRY(SocketOps::create_unix_socket());
-  OX_TRY_PURE(
+  m_socket = AU_TRY(SocketOps::create_unix_socket());
+  AU_TRY_PURE(
       SocketOps::connect_unix_socket(m_socket, desc.socket_path.c_str()));
 
-  Mut<u8 *> mapped_ptr = OX_TRY(FileOps::map_shared_memory(
+  Mut<u8 *> mapped_ptr = AU_TRY(FileOps::map_shared_memory(
       desc.shared_mem_path, desc.shared_mem_size, false));
   m_shared_memory = mapped_ptr;
 
@@ -108,11 +108,11 @@ auto IpcNode::connect(Const<const char *> connection_string) -> Result<void> {
   Mut<u8 *> moni_ptr = m_shared_memory + layout->moni_data_offset;
   Mut<u8 *> mino_ptr = m_shared_memory + layout->mino_data_offset;
 
-  m_moni = OX_TRY(RingBufferView::create(
+  m_moni = AU_TRY(RingBufferView::create(
       &layout->moni_control,
       Span<u8>(moni_ptr, static_cast<usize>(layout->moni_data_size)), false));
 
-  m_mino = OX_TRY(RingBufferView::create(
+  m_mino = AU_TRY(RingBufferView::create(
       &layout->mino_control,
       Span<u8>(mino_ptr, static_cast<usize>(layout->mino_data_size)), false));
 
@@ -304,10 +304,10 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
   sock_path = std::format("/tmp/ia_sess_{}.sock", sid);
 #endif
 
-  session->listener_socket = OX_TRY(SocketOps::create_unix_socket());
-  OX_TRY_PURE(
+  session->listener_socket = AU_TRY(SocketOps::create_unix_socket());
+  AU_TRY_PURE(
       SocketOps::bind_unix_socket(session->listener_socket, sock_path.c_str()));
-  OX_TRY_PURE(SocketOps::listen(session->listener_socket, 1));
+  AU_TRY_PURE(SocketOps::listen(session->listener_socket, 1));
 
 #if IA_PLATFORM_WINDOWS
   Mut<u_long> mode = 1;
@@ -318,7 +318,7 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
 
   Const<String> shm_name = std::format("ia_shm_{}", sid);
   session->mapped_ptr =
-      OX_TRY(FileOps::map_shared_memory(shm_name, shared_memory_size, true));
+      AU_TRY(FileOps::map_shared_memory(shm_name, shared_memory_size, true));
 
   Mut<IpcSharedMemoryLayout *> layout =
       reinterpret_cast<IpcSharedMemoryLayout *>(session->mapped_ptr);
@@ -339,13 +339,13 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
   layout->mino_data_offset = header_size + half_size;
   layout->mino_data_size = half_size;
 
-  session->moni = OX_TRY(RingBufferView::create(
+  session->moni = AU_TRY(RingBufferView::create(
       &layout->moni_control,
       Span<u8>(session->mapped_ptr + layout->moni_data_offset,
                static_cast<usize>(layout->moni_data_size)),
       true));
 
-  session->mino = OX_TRY(RingBufferView::create(
+  session->mino = AU_TRY(RingBufferView::create(
       &layout->mino_control,
       Span<u8>(session->mapped_ptr + layout->mino_data_offset,
                static_cast<usize>(layout->mino_data_size)),
@@ -358,7 +358,7 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
 
   Const<String> args = std::format("\"{}\"", desc.serialize());
 
-  session->node_process = OX_TRY(ProcessOps::spawn_process_async(
+  session->node_process = AU_TRY(ProcessOps::spawn_process_async(
       FileOps::normalize_executable_path(executable_path).string(), args,
       [sid](Const<StringView> line) {
         if (Env::IS_DEBUG) {

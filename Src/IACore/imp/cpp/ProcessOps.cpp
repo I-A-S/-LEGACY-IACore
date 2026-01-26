@@ -196,10 +196,10 @@ auto ProcessOps::spawn_process_windows(
 
   return static_cast<i32>(exit_code);
 #else
-  OX_UNUSED(command);
-  OX_UNUSED(args);
-  OX_UNUSED(on_output_line_callback);
-  OX_UNUSED(id);
+  AU_UNUSED(command);
+  AU_UNUSED(args);
+  AU_UNUSED(on_output_line_callback);
+  AU_UNUSED(id);
   return fail("Windows implementation not available.");
 #endif
 }
@@ -298,10 +298,10 @@ auto ProcessOps::spawn_process_posix(
     return -1;
   }
 #else
-  OX_UNUSED(command);
-  OX_UNUSED(args);
-  OX_UNUSED(on_output_line_callback);
-  OX_UNUSED(id);
+  AU_UNUSED(command);
+  AU_UNUSED(args);
+  AU_UNUSED(on_output_line_callback);
+  AU_UNUSED(id);
   return fail("Posix implementation not available.");
 #endif
 }

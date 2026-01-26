@@ -69,7 +69,7 @@ template <typename ResponseType>
 auto HttpClient::json_get(Ref<String> path, Span<Const<Header>> headers)
     -> Result<ResponseType> {
   Const<String> raw_response =
-      OX_TRY(raw_get(path, headers, "application/json"));
+      AU_TRY(raw_get(path, headers, "application/json"));
 
   if (last_response_code() != EResponseCode::OK) {
     return fail("Server responded with code {}",
@@ -81,10 +81,10 @@ auto HttpClient::json_get(Ref<String> path, Span<Const<Header>> headers)
 template <typename PayloadType, typename ResponseType>
 auto HttpClient::json_post(Ref<String> path, Span<Const<Header>> headers,
                            Ref<PayloadType> body) -> Result<ResponseType> {
-  Const<String> encoded_body = OX_TRY(Json::encode_struct(body));
+  Const<String> encoded_body = AU_TRY(Json::encode_struct(body));
 
   Const<String> raw_response =
-      OX_TRY(raw_post(path, headers, encoded_body, "application/json"));
+      AU_TRY(raw_post(path, headers, encoded_body, "application/json"));
 
   if (last_response_code() != EResponseCode::OK) {
     return fail("Server responded with code {}",

@@ -20,7 +20,7 @@
 
 IACore is a high-performance C++20 foundation library bundling essential systems (IPC, Logging, Networking, Compression, and Async Scheduling) into a single, coherent API.
 
-IACore strictly follows the coding style and philosophy of [Oxide](https://github.com/I-A-S/Oxide).
+IACore strictly follows the coding style and philosophy of [Auxid](https://github.com/I-A-S/Auxid).
 
 Originally developed as the internal core for IASoft (PVT) LTD., it is now open-source to provide a standardized bedrock for C++ applications where performance matters.
 
@@ -43,12 +43,12 @@ IACore provides a manager/node architecture using shared memory.
 #include <IACore/IPC.hpp>
 
 // Spawns a child process and connects via Shared Memory
-auto nodeID = manager.spawn_node("MyChildNodeExe");
-manager.wait_till_node_is_online(*nodeID);
+auto node_id = manager.spawn_node("MyChildNodeExe");
+manager.wait_till_node_is_online(*node_id);
 
 // Send data with zero-copy overhead
 String msg = "Hello Node";
-manager.send_packet(*nodeID, 100, {(PCUINT8)msg.data(), msg.size()});
+manager.send_packet(*node_id, 100, {(PCUINT8)msg.data(), msg.size()});
 ```
 
 #### Node:

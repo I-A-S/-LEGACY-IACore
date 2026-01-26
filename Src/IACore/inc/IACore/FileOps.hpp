@@ -22,11 +22,11 @@
 
 #if IA_PLATFORM_WINDOWS
 using NativeFileHandle = HANDLE;
-static constexpr ox::Const<NativeFileHandle> INVALID_FILE_HANDLE =
+static constexpr au::Const<NativeFileHandle> INVALID_FILE_HANDLE =
     INVALID_HANDLE_VALUE;
 #else
 using NativeFileHandle = int;
-static constexpr ox::Const<NativeFileHandle> INVALID_FILE_HANDLE = -1;
+static constexpr au::Const<NativeFileHandle> INVALID_FILE_HANDLE = -1;
 #endif
 
 namespace IACore {

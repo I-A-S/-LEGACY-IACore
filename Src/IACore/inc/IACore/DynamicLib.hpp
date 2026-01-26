@@ -107,7 +107,7 @@ public:
   template <typename FuncT>
   IA_NODISCARD auto get_function(Ref<String> name) const -> Result<FuncT> {
     Mut<void *> sym = nullptr;
-    sym = OX_TRY(get_symbol(name));
+    sym = AU_TRY(get_symbol(name));
     return reinterpret_cast<FuncT>(sym);
   }
 

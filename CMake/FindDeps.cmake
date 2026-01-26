@@ -15,8 +15,8 @@ set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(WITH_GZFILEOP ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
-    Oxide
-    GIT_REPOSITORY https://github.com/I-A-S/Oxide
+    Auxid
+    GIT_REPOSITORY https://github.com/I-A-S/Auxid
     GIT_TAG        main
     OVERRIDE_FIND_PACKAGE
 )
@@ -133,7 +133,7 @@ if(NOT TARGET zstd::libzstd)
     add_library(zstd::libzstd ALIAS libzstd_static)
 endif()
 
-FetchContent_MakeAvailable(Oxide httplib pugixml nlohmann_json glaze simdjson unordered_dense mimalloc highway)
+FetchContent_MakeAvailable(Auxid httplib pugixml nlohmann_json glaze simdjson unordered_dense mimalloc highway)
 
 if(NOT TARGET simdjson::simdjson)
     add_library(simdjson::simdjson ALIAS simdjson)

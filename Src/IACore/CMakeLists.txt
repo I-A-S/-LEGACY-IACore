@@ -30,7 +30,7 @@ target_include_directories(IACore PRIVATE imp/hpp/)
 target_link_libraries(IACore PUBLIC
     hwy
     zlib   
-    Oxide
+    Auxid
     zstd::libzstd
     glaze::glaze
     httplib::httplib
