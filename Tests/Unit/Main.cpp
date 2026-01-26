@@ -33,7 +33,7 @@ IACORE_MAIN() {
       << "===============================================================\n"
       << console::RESET << "\n";
 
-  Const<i32> result = Test::TestRegistry::run_all();
+  const i32 result = Test::TestRegistry::run_all();
 
   SocketOps::terminate();
 

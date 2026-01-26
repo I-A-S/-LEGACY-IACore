@@ -28,7 +28,7 @@ class CLIParser {
    */
 
 public:
-  CLIParser(Const<Span<Const<String>>> args);
+  CLIParser(const Span<const String> args);
   ~CLIParser() = default;
 
 public:
@@ -57,7 +57,7 @@ public:
   }
 
 private:
-  Const<Span<Const<String>>> m_arg_list;
-  Mut<Span<Const<String>>::const_iterator> m_current_arg;
+  const Span<const String> m_arg_list;
+  Mut<Span<const String>::const_iterator> m_current_arg;
 };
 } // namespace IACore

@@ -17,15 +17,15 @@
 
 namespace IACore {
 
-static Const<String> BASE64_CHAR_TABLE =
+static const String BASE64_CHAR_TABLE =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static auto is_base64(Const<u8> c) -> bool {
+static auto is_base64(const u8 c) -> bool {
   return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
          (c >= '0' && c <= '9') || (c == '+') || (c == '/');
 }
 
-static auto get_base64_index(Const<u8> c) -> u8 {
+static auto get_base64_index(const u8 c) -> u8 {
   if (c >= 'A' && c <= 'Z')
     return c - 'A';
   if (c >= 'a' && c <= 'z')
@@ -39,16 +39,16 @@ static auto get_base64_index(Const<u8> c) -> u8 {
   return 0;
 }
 
-auto StringOps::encode_base64(Const<Span<Const<u8>>> data) -> String {
+auto StringOps::encode_base64(const Span<const u8> data) -> String {
   Mut<String> result;
   result.reserve(((data.size() + 2) / 3) * 4);
 
   for (Mut<usize> i = 0; i < data.size(); i += 3) {
-    Const<u32> b0 = data[i];
-    Const<u32> b1 = (i + 1 < data.size()) ? data[i + 1] : 0;
-    Const<u32> b2 = (i + 2 < data.size()) ? data[i + 2] : 0;
+    const u32 b0 = data[i];
+    const u32 b1 = (i + 1 < data.size()) ? data[i + 1] : 0;
+    const u32 b2 = (i + 2 < data.size()) ? data[i + 2] : 0;
 
-    Const<u32> triple = (b0 << 16) | (b1 << 8) | b2;
+    const u32 triple = (b0 << 16) | (b1 << 8) | b2;
 
     result += BASE64_CHAR_TABLE[(triple >> 18) & 0x3F];
     result += BASE64_CHAR_TABLE[(triple >> 12) & 0x3F];
@@ -75,8 +75,8 @@ auto StringOps::decode_base64(Ref<String> data) -> Vec<u8> {
   Mut<i32> i = 0;
   Mut<Array<u8, 4>> tmp_buf = {};
 
-  for (Const<char> c_char : data) {
-    Const<u8> c = static_cast<u8>(c_char);
+  for (const char c_char : data) {
+    const u8 c = static_cast<u8>(c_char);
     if (c == '=') {
       break;
     }
@@ -86,10 +86,10 @@ auto StringOps::decode_base64(Ref<String> data) -> Vec<u8> {
 
     tmp_buf[i++] = c;
     if (i == 4) {
-      Const<u8> n0 = get_base64_index(tmp_buf[0]);
-      Const<u8> n1 = get_base64_index(tmp_buf[1]);
-      Const<u8> n2 = get_base64_index(tmp_buf[2]);
-      Const<u8> n3 = get_base64_index(tmp_buf[3]);
+      const u8 n0 = get_base64_index(tmp_buf[0]);
+      const u8 n1 = get_base64_index(tmp_buf[1]);
+      const u8 n2 = get_base64_index(tmp_buf[2]);
+      const u8 n3 = get_base64_index(tmp_buf[3]);
 
       result.push_back((n0 << 2) | ((n1 & 0x30) >> 4));
       result.push_back(((n1 & 0x0F) << 4) | ((n2 & 0x3C) >> 2));
@@ -104,9 +104,9 @@ auto StringOps::decode_base64(Ref<String> data) -> Vec<u8> {
       tmp_buf[j] = 'A';
     }
 
-    Const<u8> n0 = get_base64_index(tmp_buf[0]);
-    Const<u8> n1 = get_base64_index(tmp_buf[1]);
-    Const<u8> n2 = get_base64_index(tmp_buf[2]);
+    const u8 n0 = get_base64_index(tmp_buf[0]);
+    const u8 n1 = get_base64_index(tmp_buf[1]);
+    const u8 n2 = get_base64_index(tmp_buf[2]);
 
     if (i > 1) {
       result.push_back((n0 << 2) | ((n1 & 0x30) >> 4));

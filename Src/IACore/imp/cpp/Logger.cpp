@@ -24,11 +24,11 @@ Mut<Logger::LogLevel> Logger::m_log_level = Logger::LogLevel::Info;
 Mut<std::ofstream> Logger::m_log_file;
 
 static auto get_seconds_count() -> f64 {
-  static Const<std::chrono::time_point<std::chrono::steady_clock>> start_time =
+  static const std::chrono::time_point<std::chrono::steady_clock> start_time =
       std::chrono::steady_clock::now();
-  Const<std::chrono::time_point<std::chrono::steady_clock>> now =
+  const std::chrono::time_point<std::chrono::steady_clock> now =
       std::chrono::steady_clock::now();
-  Const<std::chrono::duration<f64>> duration = now - start_time;
+  const std::chrono::duration<f64> duration = now - start_time;
   return duration.count();
 }
 
@@ -41,8 +41,7 @@ auto Logger::terminate() -> void {
   }
 }
 
-auto Logger::enable_logging_to_disk(Const<Const<char> *> file_path)
-    -> Result<void> {
+auto Logger::enable_logging_to_disk(const char *file_path) -> Result<void> {
   if (m_log_file.is_open()) {
     m_log_file.flush();
     m_log_file.close();
@@ -57,7 +56,7 @@ auto Logger::enable_logging_to_disk(Const<Const<char> *> file_path)
   return {};
 }
 
-auto Logger::set_log_level(Const<LogLevel> log_level) -> void {
+auto Logger::set_log_level(const LogLevel log_level) -> void {
   m_log_level = log_level;
 }
 
@@ -68,10 +67,10 @@ auto Logger::flush_logs() -> void {
   }
 }
 
-auto Logger::log_internal(Const<Const<char> *> prefix, Const<Const<char> *> tag,
+auto Logger::log_internal(const char *prefix, const char *tag,
                           ForwardRef<String> msg) -> void {
-  Const<f64> seconds = get_seconds_count();
-  Const<String> out_line =
+  const f64 seconds = get_seconds_count();
+  const String out_line =
       std::format("[{:>8.3f}]: [{}]: {}", seconds, tag, msg);
 
   std::cout << prefix << out_line << console::RESET << '\n';

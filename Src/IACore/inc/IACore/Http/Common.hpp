@@ -130,20 +130,20 @@ public:
   static auto url_encode(Ref<String> value) -> String;
   static auto url_decode(Ref<String> value) -> String;
 
-  static auto header_type_to_string(Const<EHeaderType> type) -> String;
+  static auto header_type_to_string(const EHeaderType type) -> String;
 
-  static inline auto create_header(Const<EHeaderType> key, Ref<String> value)
+  static inline auto create_header(const EHeaderType key, Ref<String> value)
       -> Header;
   static inline auto create_header(Ref<String> key, Ref<String> value)
       -> Header;
 
-  static auto is_success_response_code(Const<EResponseCode> code) -> bool;
+  static auto is_success_response_code(const EResponseCode code) -> bool;
 
 protected:
   HttpCommon() = default;
 };
 
-auto HttpCommon::create_header(Const<EHeaderType> key, Ref<String> value)
+auto HttpCommon::create_header(const EHeaderType key, Ref<String> value)
     -> HttpCommon::Header {
   return Header{header_type_to_string(key), value};
 }

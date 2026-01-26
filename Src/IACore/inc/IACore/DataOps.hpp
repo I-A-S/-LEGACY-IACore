@@ -24,24 +24,22 @@ public:
 
 public:
   static auto hash_fnv1a(Ref<String> string) -> u32;
-  static auto hash_fnv1a(Ref<Span<Const<u8>>> data) -> u32;
+  static auto hash_fnv1a(Ref<Span<const u8>> data) -> u32;
 
-  static auto hash_xxhash(Ref<String> string, Const<u32> seed = 0) -> u32;
-  static auto hash_xxhash(Ref<Span<Const<u8>>> data, Const<u32> seed = 0)
-      -> u32;
+  static auto hash_xxhash(Ref<String> string, const u32 seed = 0) -> u32;
+  static auto hash_xxhash(Ref<Span<const u8>> data, const u32 seed = 0) -> u32;
 
-  static auto crc32(Ref<Span<Const<u8>>> data) -> u32;
+  static auto crc32(Ref<Span<const u8>> data) -> u32;
 
-  static auto detect_compression(Const<Span<Const<u8>>> data)
-      -> CompressionType;
+  static auto detect_compression(const Span<const u8> data) -> CompressionType;
 
-  static auto gzip_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>>;
-  static auto gzip_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>>;
+  static auto gzip_inflate(Ref<Span<const u8>> data) -> Result<Vec<u8>>;
+  static auto gzip_deflate(Ref<Span<const u8>> data) -> Result<Vec<u8>>;
 
-  static auto zlib_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>>;
-  static auto zlib_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>>;
+  static auto zlib_inflate(Ref<Span<const u8>> data) -> Result<Vec<u8>>;
+  static auto zlib_deflate(Ref<Span<const u8>> data) -> Result<Vec<u8>>;
 
-  static auto zstd_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>>;
-  static auto zstd_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>>;
+  static auto zstd_inflate(Ref<Span<const u8>> data) -> Result<Vec<u8>>;
+  static auto zstd_deflate(Ref<Span<const u8>> data) -> Result<Vec<u8>>;
 };
 } // namespace IACore

@@ -31,7 +31,7 @@ public:
   static auto create_from_file(Ref<Path> path) -> Result<StreamReader>;
 
   explicit StreamReader(ForwardRef<Vec<u8>> data);
-  explicit StreamReader(Const<Span<const u8>> data);
+  explicit StreamReader(const Span<const u8> data);
   ~StreamReader();
 
   StreamReader(ForwardRef<StreamReader> other);
@@ -40,17 +40,17 @@ public:
   StreamReader(Ref<StreamReader>) = delete;
   auto operator=(Ref<StreamReader>) -> MutRef<StreamReader> = delete;
 
-  auto read(Mut<void *> buffer, Const<usize> size) -> Result<void>;
+  auto read(Mut<void *> buffer, const usize size) -> Result<void>;
 
   template <typename T>
   [[nodiscard("Check for EOF")]]
   auto read() -> Result<T>;
 
-  auto skip(Const<usize> amount) -> void {
+  auto skip(const usize amount) -> void {
     m_cursor = std::min(m_cursor + amount, m_data_size);
   }
 
-  auto seek(Const<usize> pos) -> void {
+  auto seek(const usize pos) -> void {
     m_cursor = (pos > m_data_size) ? m_data_size : pos;
   }
 
@@ -72,7 +72,7 @@ private:
   Mut<StorageType> m_storage_type = StorageType::NonOwning;
 };
 
-inline auto StreamReader::read(Mut<void *> buffer, Const<usize> size)
+inline auto StreamReader::read(Mut<void *> buffer, const usize size)
     -> Result<void> {
   if (m_cursor + size > m_data_size) [[unlikely]] {
     return fail("Unexpected EOF while reading");
@@ -90,7 +90,7 @@ inline auto StreamReader::read() -> Result<T> {
   static_assert(std::is_trivially_copyable_v<T>,
                 "T must be trivially copyable to read via memcpy");
 
-  constexpr Const<usize> SIZE = sizeof(T);
+  constexpr const usize SIZE = sizeof(T);
 
   if (m_cursor + SIZE > m_data_size) [[unlikely]] {
     return fail("Unexpected EOF while reading");

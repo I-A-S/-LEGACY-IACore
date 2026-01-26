@@ -44,13 +44,13 @@ public:
 
   static auto spawn_process_sync(
       Ref<String> command, Ref<String> args,
-      Const<std::function<void(Const<StringView>)>> on_output_line_callback)
+      const std::function<void(StringView)> on_output_line_callback)
       -> Result<i32>;
 
   static auto spawn_process_async(
       Ref<String> command, Ref<String> args,
-      Const<std::function<void(Const<StringView>)>> on_output_line_callback,
-      Const<std::function<void(Const<Result<i32>>)>> on_finish_callback)
+      const std::function<void(StringView)> on_output_line_callback,
+      const std::function<void(Result<i32>)> on_finish_callback)
       -> Result<Box<ProcessHandle>>;
 
   static auto terminate_process(Ref<Box<ProcessHandle>> handle) -> void;
@@ -58,12 +58,12 @@ public:
 private:
   static auto spawn_process_windows(
       Ref<String> command, Ref<String> args,
-      Const<std::function<void(Const<StringView>)>> on_output_line_callback,
+      const std::function<void(StringView)> on_output_line_callback,
       MutRef<std::atomic<NativeProcessID>> id) -> Result<i32>;
 
   static auto spawn_process_posix(
       Ref<String> command, Ref<String> args,
-      Const<std::function<void(Const<StringView>)>> on_output_line_callback,
+      const std::function<void(StringView)> on_output_line_callback,
       MutRef<std::atomic<NativeProcessID>> id) -> Result<i32>;
 };
 } // namespace IACore

@@ -31,7 +31,7 @@ struct IpcConnectionDescriptor {
                        shared_mem_size);
   }
 
-  static auto deserialize(Const<StringView> data)
+  static auto deserialize(const StringView data)
       -> Option<IpcConnectionDescriptor> {
     enum class ParseState { SocketPath, SharedMemPath, SharedMemSize };
 
@@ -56,8 +56,8 @@ struct IpcConnectionDescriptor {
         break;
 
       case ParseState::SharedMemSize: {
-        Const<const char *> start = data.data() + t;
-        Const<const char *> end = data.data() + i;
+        const char *start = data.data() + t;
+        const char *end = data.data() + i;
         if (std::from_chars(start, end, result.shared_mem_size).ec !=
             std::errc{}) {
           return std::nullopt;
@@ -77,8 +77,8 @@ IpcNode::~IpcNode() {
   }
 }
 
-auto IpcNode::connect(Const<const char *> connection_string) -> Result<void> {
-  Const<Option<IpcConnectionDescriptor>> desc_opt =
+auto IpcNode::connect(const char *connection_string) -> Result<void> {
+  const Option<IpcConnectionDescriptor> desc_opt =
       IpcConnectionDescriptor::deserialize(connection_string);
   if (!desc_opt) {
     return fail("Failed to parse connection string");
@@ -141,7 +141,7 @@ void IpcNode::update() {
   }
 
   Mut<u8> signal = 0;
-  Const<isize> res = recv(m_socket, reinterpret_cast<char *>(&signal), 1, 0);
+  const isize res = recv(m_socket, reinterpret_cast<char *>(&signal), 1, 0);
   if (res == 1) {
     on_signal(signal);
   } else if (res == 0 || (res < 0 && !SocketOps::is_would_block())) {
@@ -152,30 +152,30 @@ void IpcNode::update() {
   }
 }
 
-void IpcNode::send_signal(Const<u8> signal) {
+void IpcNode::send_signal(const u8 signal) {
   if (m_socket != INVALID_SOCKET) {
     send(m_socket, reinterpret_cast<const char *>(&signal), sizeof(signal), 0);
   }
 }
 
-auto IpcNode::send_packet(Const<u16> packet_id, Const<Span<Const<u8>>> payload)
+auto IpcNode::send_packet(const u16 packet_id, const Span<const u8> payload)
     -> Result<void> {
   if (!m_mino.is_valid())
     return fail("invalid MINO");
   return m_mino.push(packet_id, payload);
 }
 
-void IpcManager::NodeSession::send_signal(Const<u8> signal) {
+void IpcManager::NodeSession::send_signal(const u8 signal) {
   if (data_socket != INVALID_SOCKET) {
     send(data_socket, reinterpret_cast<const char *>(&signal), sizeof(signal),
          0);
   }
 }
 
-auto IpcManager::NodeSession::send_packet(Const<u16> packet_id,
-                                          Const<Span<Const<u8>>> payload)
+auto IpcManager::NodeSession::send_packet(const u16 packet_id,
+                                          const Span<const u8> payload)
     -> Result<void> {
-  Const<std::scoped_lock<std::mutex>> lock(send_mutex);
+  const std::scoped_lock<std::mutex> lock(send_mutex);
   if (!moni.is_valid())
     return fail("invalid MONI");
   return moni.push(packet_id, payload);
@@ -207,7 +207,7 @@ IpcManager::~IpcManager() {
 }
 
 void IpcManager::update() {
-  Const<std::chrono::system_clock::time_point> now =
+  const std::chrono::system_clock::time_point now =
       std::chrono::system_clock::now();
 
   for (Mut<isize> i = static_cast<isize>(m_pending_sessions.size()) - 1; i >= 0;
@@ -246,7 +246,7 @@ void IpcManager::update() {
       SocketOps::close(session->listener_socket);
       session->listener_socket = INVALID_SOCKET;
 
-      Const<NativeProcessID> session_id = session->node_process->id.load();
+      const NativeProcessID session_id = session->node_process->id.load();
       Mut<NodeSession *> session_ptr = session.get();
       m_active_sessions.push_back(std::move(session));
       m_pending_sessions.erase(m_pending_sessions.begin() + i);
@@ -269,7 +269,7 @@ void IpcManager::update() {
     }
 
     Mut<u8> signal = 0;
-    Const<isize> res =
+    const isize res =
         recv(node->data_socket, reinterpret_cast<char *>(&signal), 1, 0);
 
     if (res == 1) {
@@ -288,12 +288,12 @@ void IpcManager::update() {
 }
 
 auto IpcManager::spawn_node(Ref<Path> executable_path,
-                            Const<u32> shared_memory_size)
+                            const u32 shared_memory_size)
     -> Result<NativeProcessID> {
   Mut<Box<NodeSession>> session = make_box<NodeSession>();
 
   static Mut<std::atomic<u32>> s_id_gen{0};
-  Const<u32> sid = ++s_id_gen;
+  const u32 sid = ++s_id_gen;
 
   Mut<String> sock_path;
 #if IA_PLATFORM_WINDOWS
@@ -316,7 +316,7 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
   fcntl(session->listener_socket, F_SETFL, O_NONBLOCK);
 #endif
 
-  Const<String> shm_name = std::format("ia_shm_{}", sid);
+  const String shm_name = std::format("ia_shm_{}", sid);
   session->mapped_ptr =
       AU_TRY(FileOps::map_shared_memory(shm_name, shared_memory_size, true));
 
@@ -327,8 +327,8 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
   layout->meta.version = 1;
   layout->meta.total_size = shared_memory_size;
 
-  Const<u64> header_size = IpcSharedMemoryLayout::get_header_size();
-  Const<u64> usable_bytes = shared_memory_size - header_size;
+  const u64 header_size = IpcSharedMemoryLayout::get_header_size();
+  const u64 usable_bytes = shared_memory_size - header_size;
 
   Mut<u64> half_size = (usable_bytes / 2);
   half_size -= (half_size % 64);
@@ -356,17 +356,17 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
   desc.shared_mem_path = shm_name;
   desc.shared_mem_size = shared_memory_size;
 
-  Const<String> args = std::format("\"{}\"", desc.serialize());
+  const String args = std::format("\"{}\"", desc.serialize());
 
   session->node_process = AU_TRY(ProcessOps::spawn_process_async(
       FileOps::normalize_executable_path(executable_path).string(), args,
-      [sid](Const<StringView> line) {
+      [sid](StringView line) {
         if (Env::IS_DEBUG) {
           std::cout << std::format("{}[Node:{}:STDOUT|STDERR]: {}{}\n",
                                    console::MAGENTA, sid, line, console::RESET);
         }
       },
-      [sid](Const<Result<i32>> result) {
+      [sid](Result<i32> result) {
         if (Env::IS_DEBUG) {
           if (!result) {
             std::cout << std::format(
@@ -386,7 +386,7 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
                 executable_path.string());
   }
 
-  Const<NativeProcessID> process_id = session->node_process->id.load();
+  const NativeProcessID process_id = session->node_process->id.load();
 
   session->shared_mem_name = shm_name;
   session->creation_time = std::chrono::system_clock::now();
@@ -395,12 +395,12 @@ auto IpcManager::spawn_node(Ref<Path> executable_path,
   return process_id;
 }
 
-auto IpcManager::wait_till_node_is_online(Const<NativeProcessID> node_id)
+auto IpcManager::wait_till_node_is_online(const NativeProcessID node_id)
     -> bool {
   Mut<bool> is_pending = true;
   while (is_pending) {
     is_pending = false;
-    for (Const<Box<NodeSession>> &session : m_pending_sessions) {
+    for (const Box<NodeSession> &session : m_pending_sessions) {
       if (session->node_process->id.load() == node_id) {
         is_pending = true;
         break;
@@ -412,8 +412,8 @@ auto IpcManager::wait_till_node_is_online(Const<NativeProcessID> node_id)
   return m_active_session_map.contains(node_id);
 }
 
-void IpcManager::shutdown_node(Const<NativeProcessID> node_id) {
-  Const<HashMap<NativeProcessID, NodeSession *>::iterator> it_node =
+void IpcManager::shutdown_node(const NativeProcessID node_id) {
+  const HashMap<NativeProcessID, NodeSession *>::iterator it_node =
       m_active_session_map.find(node_id);
   if (it_node == m_active_session_map.end()) {
     return;
@@ -431,8 +431,8 @@ void IpcManager::shutdown_node(Const<NativeProcessID> node_id) {
   m_active_session_map.erase(it_node);
 }
 
-void IpcManager::send_signal(Const<NativeProcessID> node, Const<u8> signal) {
-  Const<HashMap<NativeProcessID, NodeSession *>::iterator> it_node =
+void IpcManager::send_signal(const NativeProcessID node, const u8 signal) {
+  const HashMap<NativeProcessID, NodeSession *>::iterator it_node =
       m_active_session_map.find(node);
   if (it_node == m_active_session_map.end()) {
     return;
@@ -440,9 +440,9 @@ void IpcManager::send_signal(Const<NativeProcessID> node, Const<u8> signal) {
   it_node->second->send_signal(signal);
 }
 
-auto IpcManager::send_packet(Const<NativeProcessID> node, Const<u16> packet_id,
-                             Const<Span<Const<u8>>> payload) -> Result<void> {
-  Const<HashMap<NativeProcessID, NodeSession *>::iterator> it_node =
+auto IpcManager::send_packet(const NativeProcessID node, const u16 packet_id,
+                             const Span<const u8> payload) -> Result<void> {
+  const HashMap<NativeProcessID, NodeSession *>::iterator it_node =
       m_active_session_map.find(node);
   if (it_node == m_active_session_map.end())
     return fail("no such node");

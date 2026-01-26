@@ -37,7 +37,7 @@ StreamWriter::StreamWriter() : m_storage_type(StorageType::OwningVector) {
   m_buffer = m_owning_vector.data();
 }
 
-StreamWriter::StreamWriter(Const<Span<u8>> data)
+StreamWriter::StreamWriter(const Span<u8> data)
     : m_buffer(data.data()), m_cursor(0), m_capacity(data.size()),
       m_storage_type(StorageType::NonOwning) {}
 
@@ -58,7 +58,7 @@ auto StreamWriter::operator=(ForwardRef<StreamWriter> other)
     -> MutRef<StreamWriter> {
   if (this != &other) {
     if (m_storage_type == StorageType::OwningFile) {
-      if (Const<Result<void>> res = flush_to_disk(); !res) {
+      if (const Result<void> res = flush_to_disk(); !res) {
         std::fprintf(stderr, "[IACore] Data loss in StreamWriter move: %s\n",
                      res.error().c_str());
       }
@@ -84,7 +84,7 @@ auto StreamWriter::operator=(ForwardRef<StreamWriter> other)
 
 StreamWriter::~StreamWriter() {
   if (m_storage_type == StorageType::OwningFile) {
-    if (Const<Result<void>> res = flush_to_disk(); !res) {
+    if (const Result<void> res = flush_to_disk(); !res) {
       std::fprintf(stderr, "[IACore] LOST DATA in ~StreamWriter: %s\n",
                    res.error().c_str());
     }
@@ -109,7 +109,7 @@ auto StreamWriter::flush_to_disk() -> Result<void> {
     return fail("Failed to open file for writing: {}", m_file_path.string());
   }
 
-  Const<usize> written = std::fwrite(m_buffer, 1, m_cursor, f);
+  const usize written = std::fwrite(m_buffer, 1, m_cursor, f);
   std::fclose(f);
 
   if (written != m_cursor) {
@@ -118,15 +118,15 @@ auto StreamWriter::flush_to_disk() -> Result<void> {
   return {};
 }
 
-auto StreamWriter::write(Const<u8> byte, Const<usize> count) -> Result<void> {
+auto StreamWriter::write(const u8 byte, const usize count) -> Result<void> {
   if (m_cursor + count > m_capacity) {
     if (m_storage_type == StorageType::NonOwning) {
       return fail("StreamWriter buffer overflow (NonOwning)");
     }
 
-    Const<usize> required = m_cursor + count;
-    Const<usize> double_cap = m_capacity * 2;
-    Const<usize> new_capacity = (double_cap > required) ? double_cap : required;
+    const usize required = m_cursor + count;
+    const usize double_cap = m_capacity * 2;
+    const usize new_capacity = (double_cap > required) ? double_cap : required;
 
     m_owning_vector.resize(new_capacity);
     m_capacity = m_owning_vector.size();
@@ -138,16 +138,15 @@ auto StreamWriter::write(Const<u8> byte, Const<usize> count) -> Result<void> {
   return {};
 }
 
-auto StreamWriter::write(Const<const void *> buffer, Const<usize> size)
-    -> Result<void> {
+auto StreamWriter::write(const void *buffer, const usize size) -> Result<void> {
   if (m_cursor + size > m_capacity) {
     if (m_storage_type == StorageType::NonOwning) {
       return fail("StreamWriter buffer overflow (NonOwning)");
     }
 
-    Const<usize> required = m_cursor + size;
-    Const<usize> double_cap = m_capacity * 2;
-    Const<usize> new_capacity = (double_cap > required) ? double_cap : required;
+    const usize required = m_cursor + size;
+    const usize double_cap = m_capacity * 2;
+    const usize new_capacity = (double_cap > required) ? double_cap : required;
 
     m_owning_vector.resize(new_capacity);
     m_capacity = m_owning_vector.size();

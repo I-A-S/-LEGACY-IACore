@@ -24,7 +24,7 @@ class Environment {
 public:
   static auto find(Ref<String> name) -> Option<String> {
 #if IA_PLATFORM_WINDOWS
-    Const<u32> buffer_size =
+    const u32 buffer_size =
         static_cast<u32>(GetEnvironmentVariableA(name.c_str(), nullptr, 0));
 
     if (buffer_size == 0) {
@@ -34,7 +34,7 @@ public:
     Mut<String> result;
     result.resize(buffer_size);
 
-    Const<u32> actual_size = static_cast<u32>(
+    const u32 actual_size = static_cast<u32>(
         GetEnvironmentVariableA(name.c_str(), result.data(), buffer_size));
 
     if (actual_size == 0 || actual_size > buffer_size) {
@@ -45,7 +45,7 @@ public:
     return result;
 
 #else
-    Const<char *> val = std::getenv(name.c_str());
+    const char *val = std::getenv(name.c_str());
     if (val == nullptr) {
       return std::nullopt;
     }

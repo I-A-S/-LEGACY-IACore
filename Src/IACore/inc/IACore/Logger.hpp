@@ -33,36 +33,35 @@ public:
   enum class LogLevel { Trace, Debug, Info, Warn, Error };
 
 public:
-  static auto enable_logging_to_disk(Const<const char *> file_path)
-      -> Result<void>;
-  static auto set_log_level(Const<LogLevel> log_level) -> void;
+  static auto enable_logging_to_disk(const char *file_path) -> Result<void>;
+  static auto set_log_level(const LogLevel log_level) -> void;
 
   template <typename... Args>
-  static auto trace(Const<std::format_string<Args...>> fmt,
+  static auto trace(const std::format_string<Args...> fmt,
                     ForwardRef<Args>... args) -> void {
     log_trace(std::vformat(fmt.get(), std::make_format_args(args...)));
   }
 
   template <typename... Args>
-  static auto debug(Const<std::format_string<Args...>> fmt,
+  static auto debug(const std::format_string<Args...> fmt,
                     ForwardRef<Args>... args) -> void {
     log_debug(std::vformat(fmt.get(), std::make_format_args(args...)));
   }
 
   template <typename... Args>
-  static auto info(Const<std::format_string<Args...>> fmt,
+  static auto info(const std::format_string<Args...> fmt,
                    ForwardRef<Args>... args) -> void {
     log_info(std::vformat(fmt.get(), std::make_format_args(args...)));
   }
 
   template <typename... Args>
-  static auto warn(Const<std::format_string<Args...>> fmt,
+  static auto warn(const std::format_string<Args...> fmt,
                    ForwardRef<Args>... args) -> void {
     log_warn(std::vformat(fmt.get(), std::make_format_args(args...)));
   }
 
   template <typename... Args>
-  static auto error(Const<std::format_string<Args...>> fmt,
+  static auto error(const std::format_string<Args...> fmt,
                     ForwardRef<Args>... args) -> void {
     log_error(std::vformat(fmt.get(), std::make_format_args(args...)));
   }
@@ -107,7 +106,7 @@ private:
   }
 #endif
 
-  static auto log_internal(Const<const char *> prefix, Const<const char *> tag,
+  static auto log_internal(const char *prefix, const char *tag,
                            ForwardRef<String> msg) -> void;
 
 private:

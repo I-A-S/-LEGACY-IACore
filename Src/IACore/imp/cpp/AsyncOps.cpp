@@ -28,7 +28,7 @@ auto AsyncOps::run_task(Mut<std::function<void()>> task) -> void {
 
 auto AsyncOps::initialize_scheduler(Mut<u8> worker_count) -> Result<void> {
   if (worker_count == 0) {
-    Const<u32> hw_concurrency = std::thread::hardware_concurrency();
+    const u32 hw_concurrency = std::thread::hardware_concurrency();
     Mut<u32> threads = 2;
     if (hw_concurrency > 2) {
       threads = hw_concurrency - 2;
@@ -65,14 +65,14 @@ auto AsyncOps::terminate_scheduler() -> void {
 }
 
 auto AsyncOps::schedule_task(Mut<std::function<void(WorkerId worker_id)>> task,
-                             Const<TaskTag> tag, Const<Schedule *> schedule,
-                             Const<Priority> priority) -> void {
+                             const TaskTag tag, Schedule *schedule,
+                             const Priority priority) -> void {
   ensure(!s_schedule_workers.empty(),
          "Scheduler must be initialized before calling schedule_task");
 
   schedule->counter.fetch_add(1);
   {
-    Const<std::lock_guard<std::mutex>> lock(s_queue_mutex);
+    const std::lock_guard<std::mutex> lock(s_queue_mutex);
     if (priority == Priority::High) {
       s_high_priority_queue.emplace_back(
           ScheduledTask{tag, schedule, std::move(task)});
@@ -84,8 +84,8 @@ auto AsyncOps::schedule_task(Mut<std::function<void(WorkerId worker_id)>> task,
   s_wake_condition.notify_one();
 }
 
-auto AsyncOps::cancel_tasks_of_tag(Const<TaskTag> tag) -> void {
-  Const<std::lock_guard<std::mutex>> lock(s_queue_mutex);
+auto AsyncOps::cancel_tasks_of_tag(const TaskTag tag) -> void {
+  const std::lock_guard<std::mutex> lock(s_queue_mutex);
 
   {
     MutRef<std::deque<ScheduledTask>> queue = s_high_priority_queue;
@@ -120,8 +120,7 @@ auto AsyncOps::cancel_tasks_of_tag(Const<TaskTag> tag) -> void {
   }
 }
 
-auto AsyncOps::wait_for_schedule_completion(Const<Schedule *> schedule)
-    -> void {
+auto AsyncOps::wait_for_schedule_completion(Schedule *schedule) -> void {
   ensure(!s_schedule_workers.empty(), "Scheduler must be initialized before "
                                       "calling wait_for_schedule_completion");
 
@@ -147,7 +146,7 @@ auto AsyncOps::wait_for_schedule_completion(Const<Schedule *> schedule)
         task.schedule_handle->counter.notify_all();
       }
     } else {
-      Const<u32> current_val = schedule->counter.load();
+      const u32 current_val = schedule->counter.load();
       if (current_val > 0) {
         schedule->counter.wait(current_val);
       }
@@ -159,8 +158,8 @@ auto AsyncOps::get_worker_count() -> WorkerId {
   return static_cast<WorkerId>(s_schedule_workers.size());
 }
 
-auto AsyncOps::schedule_worker_loop(Const<std::stop_token> stop_token,
-                                    Const<WorkerId> worker_id) -> void {
+auto AsyncOps::schedule_worker_loop(const std::stop_token stop_token,
+                                    const WorkerId worker_id) -> void {
   while (!stop_token.stop_requested()) {
     Mut<ScheduledTask> task;
     Mut<bool> found_task = false;

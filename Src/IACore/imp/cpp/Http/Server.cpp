@@ -18,24 +18,21 @@
 namespace IACore {
 
 auto HttpServer::Request::get_header(Ref<String> key) const -> String {
-  if (Const<HashMap<String, String>::const_iterator> it = headers.find(key);
-      it != headers.end()) {
+  if (auto it = headers.find(key); it != headers.end()) {
     return it->second;
   }
   return "";
 }
 
 auto HttpServer::Request::get_param(Ref<String> key) const -> String {
-  if (Const<HashMap<String, String>::const_iterator> it = params.find(key);
-      it != params.end()) {
+  if (auto it = params.find(key); it != params.end()) {
     return it->second;
   }
   return "";
 }
 
 auto HttpServer::Request::get_path_param(Ref<String> key) const -> String {
-  if (Const<HashMap<String, String>::const_iterator> it = path_params.find(key);
-      it != path_params.end()) {
+  if (auto it = path_params.find(key); it != path_params.end()) {
     return it->second;
   }
   return "";
@@ -58,7 +55,7 @@ void HttpServer::Response::set_content(Ref<String> content, Ref<String> type) {
   content_type = type;
 }
 
-void HttpServer::Response::set_status(Const<EResponseCode> status_code) {
+void HttpServer::Response::set_status(const EResponseCode status_code) {
   code = status_code;
 }
 
@@ -78,7 +75,7 @@ auto HttpServer::create() -> Result<Box<HttpServer>> {
   return make_box<PublicHttpServer>();
 }
 
-auto HttpServer::listen(Ref<String> host, Const<u32> port) -> Result<void> {
+auto HttpServer::listen(Ref<String> host, const u32 port) -> Result<void> {
   if (!m_server.listen(host.c_str(), static_cast<int>(port))) {
     return fail("Failed to start HTTP server on {}:{}", host, port);
   }
@@ -94,8 +91,8 @@ void HttpServer::stop() {
 auto HttpServer::is_running() const -> bool { return m_server.is_running(); }
 
 void HttpServer::register_handler(Ref<String> method, Ref<String> pattern,
-                                  Const<Handler> handler) {
-  Const<httplib::Server::Handler> wrapper =
+                                  const Handler handler) {
+  const httplib::Server::Handler wrapper =
       [handler](Ref<httplib::Request> req, MutRef<httplib::Response> res) {
         Mut<Request> ia_req;
         ia_req.path = req.path;
@@ -138,23 +135,23 @@ void HttpServer::register_handler(Ref<String> method, Ref<String> pattern,
   }
 }
 
-void HttpServer::get(Ref<String> pattern, Const<Handler> handler) {
+void HttpServer::get(Ref<String> pattern, const Handler handler) {
   register_handler("GET", pattern, handler);
 }
 
-void HttpServer::post(Ref<String> pattern, Const<Handler> handler) {
+void HttpServer::post(Ref<String> pattern, const Handler handler) {
   register_handler("POST", pattern, handler);
 }
 
-void HttpServer::put(Ref<String> pattern, Const<Handler> handler) {
+void HttpServer::put(Ref<String> pattern, const Handler handler) {
   register_handler("PUT", pattern, handler);
 }
 
-void HttpServer::del(Ref<String> pattern, Const<Handler> handler) {
+void HttpServer::del(Ref<String> pattern, const Handler handler) {
   register_handler("DELETE", pattern, handler);
 }
 
-void HttpServer::options(Ref<String> pattern, Const<Handler> handler) {
+void HttpServer::options(Ref<String> pattern, const Handler handler) {
   register_handler("OPTIONS", pattern, handler);
 }
 

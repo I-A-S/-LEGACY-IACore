@@ -19,7 +19,7 @@
 namespace IACore {
 Mut<i32> SocketOps::s_init_count = 0;
 
-auto SocketOps::close(Const<SocketHandle> sock) -> void {
+auto SocketOps::close(const SocketHandle sock) -> void {
   if (sock == INVALID_SOCKET) {
     return;
   }
@@ -30,7 +30,7 @@ auto SocketOps::close(Const<SocketHandle> sock) -> void {
 #endif
 }
 
-auto SocketOps::listen(Const<SocketHandle> sock, Const<i32> queue_size)
+auto SocketOps::listen(const SocketHandle sock, const i32 queue_size)
     -> Result<void> {
   if (::listen(sock, queue_size) == 0) {
     return {};
@@ -44,7 +44,7 @@ auto SocketOps::listen(Const<SocketHandle> sock, Const<i32> queue_size)
 }
 
 auto SocketOps::create_unix_socket() -> Result<SocketHandle> {
-  Const<SocketHandle> sock = socket(AF_UNIX, SOCK_STREAM, 0);
+  const SocketHandle sock = socket(AF_UNIX, SOCK_STREAM, 0);
   if (sock == INVALID_SOCKET) {
 #if IA_PLATFORM_WINDOWS
     return fail("socket(AF_UNIX) failed: {}", WSAGetLastError());
@@ -55,8 +55,8 @@ auto SocketOps::create_unix_socket() -> Result<SocketHandle> {
   return sock;
 }
 
-auto SocketOps::bind_unix_socket(Const<SocketHandle> sock,
-                                 Const<const char *> path) -> Result<void> {
+auto SocketOps::bind_unix_socket(const SocketHandle sock, const char *path)
+    -> Result<void> {
   if (sock == INVALID_SOCKET) {
     return fail("Invalid socket handle");
   }
@@ -66,7 +66,7 @@ auto SocketOps::bind_unix_socket(Const<SocketHandle> sock,
   Mut<sockaddr_un> addr{};
   addr.sun_family = AF_UNIX;
 
-  Const<usize> max_len = sizeof(addr.sun_path) - 1;
+  const usize max_len = sizeof(addr.sun_path) - 1;
 #if IA_PLATFORM_WINDOWS
   strncpy_s(addr.sun_path, sizeof(addr.sun_path), path, max_len);
 #else
@@ -85,8 +85,8 @@ auto SocketOps::bind_unix_socket(Const<SocketHandle> sock,
   return {};
 }
 
-auto SocketOps::connect_unix_socket(Const<SocketHandle> sock,
-                                    Const<const char *> path) -> Result<void> {
+auto SocketOps::connect_unix_socket(const SocketHandle sock, const char *path)
+    -> Result<void> {
   if (sock == INVALID_SOCKET) {
     return fail("Invalid socket handle");
   }
@@ -94,7 +94,7 @@ auto SocketOps::connect_unix_socket(Const<SocketHandle> sock,
   Mut<sockaddr_un> addr{};
   addr.sun_family = AF_UNIX;
 
-  Const<usize> max_len = sizeof(addr.sun_path) - 1;
+  const usize max_len = sizeof(addr.sun_path) - 1;
 #if IA_PLATFORM_WINDOWS
   strncpy_s(addr.sun_path, sizeof(addr.sun_path), path, max_len);
 #else
@@ -113,8 +113,8 @@ auto SocketOps::connect_unix_socket(Const<SocketHandle> sock,
   return {};
 }
 
-auto SocketOps::is_port_available(Const<u16> port, Const<i32> type) -> bool {
-  Const<SocketHandle> sock = socket(AF_INET, type, 0);
+auto SocketOps::is_port_available(const u16 port, const i32 type) -> bool {
+  const SocketHandle sock = socket(AF_INET, type, 0);
   if (sock == INVALID_SOCKET) {
     return false;
   }

@@ -48,7 +48,7 @@ private:
 
 class Json {
 private:
-  static constexpr Const<glz::opts> GLAZE_OPTS =
+  static constexpr const glz::opts GLAZE_OPTS =
       glz::opts{.error_on_unknown_keys = false};
 
 public:
@@ -65,7 +65,7 @@ public:
 };
 
 inline auto Json::parse(Ref<String> json_str) -> Result<nlohmann::json> {
-  Const<nlohmann::json> res =
+  const nlohmann::json res =
       nlohmann::json::parse(json_str, nullptr, false, true);
 
   if (res.is_discarded()) {
@@ -80,7 +80,7 @@ inline auto Json::parse_read_only(Ref<String> json_str)
 
   Mut<simdjson::dom::element> root;
 
-  Const<simdjson::error_code> error = parser->parse(json_str).get(root);
+  const simdjson::error_code error = parser->parse(json_str).get(root);
 
   if (error) {
     return fail("JSON Error: {}", simdjson::error_message(error));
@@ -97,7 +97,7 @@ template <typename T>
 inline auto Json::parse_to_struct(Ref<String> json_str) -> Result<T> {
   Mut<T> result{};
 
-  Const<glz::error_ctx> err = glz::read<GLAZE_OPTS>(result, json_str);
+  const glz::error_ctx err = glz::read<GLAZE_OPTS>(result, json_str);
 
   if (err) {
     return fail("JSON Struct Parse Error: {}",
@@ -109,7 +109,7 @@ inline auto Json::parse_to_struct(Ref<String> json_str) -> Result<T> {
 template <typename T>
 inline auto Json::encode_struct(Ref<T> data) -> Result<String> {
   Mut<String> result;
-  Const<glz::error_ctx> err = glz::write_json(data, result);
+  const glz::error_ctx err = glz::write_json(data, result);
 
   if (err) {
     return fail("JSON Struct Encode Error");

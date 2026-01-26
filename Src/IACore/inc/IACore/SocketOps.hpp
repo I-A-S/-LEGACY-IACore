@@ -53,7 +53,7 @@ public:
     }
 #if IA_PLATFORM_WINDOWS
     Mut<WSADATA> wsa_data;
-    Const<i32> res = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+    const i32 res = WSAStartup(MAKEWORD(2, 2), &wsa_data);
     if (res != 0) {
       s_init_count--;
       return fail("WSAStartup failed with error: {}", res);
@@ -77,29 +77,29 @@ public:
 
   static auto is_initialized() -> bool { return s_init_count > 0; }
 
-  static auto is_port_available_tcp(Const<u16> port) -> bool {
+  static auto is_port_available_tcp(const u16 port) -> bool {
     return is_port_available(port, SOCK_STREAM);
   }
 
-  static auto is_port_available_udp(Const<u16> port) -> bool {
+  static auto is_port_available_udp(const u16 port) -> bool {
     return is_port_available(port, SOCK_DGRAM);
   }
 
   static auto is_would_block() -> bool;
 
-  static auto close(Const<SocketHandle> sock) -> void;
+  static auto close(const SocketHandle sock) -> void;
 
-  static auto listen(Const<SocketHandle> sock, Const<i32> queue_size = 5)
+  static auto listen(const SocketHandle sock, const i32 queue_size = 5)
       -> Result<void>;
 
   static auto create_unix_socket() -> Result<SocketHandle>;
 
-  static auto bind_unix_socket(Const<SocketHandle> sock,
-                               Const<const char *> path) -> Result<void>;
-  static auto connect_unix_socket(Const<SocketHandle> sock,
-                                  Const<const char *> path) -> Result<void>;
+  static auto bind_unix_socket(const SocketHandle sock, const char *path)
+      -> Result<void>;
+  static auto connect_unix_socket(const SocketHandle sock, const char *path)
+      -> Result<void>;
 
-  static auto unlink_file(Const<const char *> path) -> void {
+  static auto unlink_file(const char *path) -> void {
 #if IA_PLATFORM_WINDOWS
     DeleteFileA(path);
 #elif IA_PLATFORM_UNIX
@@ -108,7 +108,7 @@ public:
   }
 
 private:
-  static auto is_port_available(Const<u16> port, Const<i32> type) -> bool;
+  static auto is_port_available(const u16 port, const i32 type) -> bool;
 
 private:
   static Mut<i32> s_init_count;

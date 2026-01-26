@@ -29,36 +29,36 @@ namespace IACore {
 Mut<HashMap<const u8 *, std::tuple<void *, void *, void *>>>
     FileOps::s_mapped_files;
 
-auto FileOps::unmap_file(Const<Const<u8> *> mapped_ptr) -> void {
+auto FileOps::unmap_file(const u8 *mapped_ptr) -> void {
   if (!s_mapped_files.contains(mapped_ptr)) {
     return;
   }
 
   Mut<decltype(s_mapped_files)::iterator> it = s_mapped_files.find(mapped_ptr);
-  Const<std::tuple<void *, void *, void *>> handles = it->second;
+  const std::tuple<void *, void *, void *> handles = it->second;
   s_mapped_files.erase(it);
 
 #if IA_PLATFORM_WINDOWS
   ::UnmapViewOfFile(std::get<1>(handles));
   ::CloseHandle(static_cast<HANDLE>(std::get<2>(handles)));
 
-  Const<HANDLE> handle = static_cast<HANDLE>(std::get<0>(handles));
+  const HANDLE handle = static_cast<HANDLE>(std::get<0>(handles));
   if (handle != INVALID_HANDLE_VALUE) {
     ::CloseHandle(handle);
   }
 #elif IA_PLATFORM_UNIX
   ::munmap(std::get<1>(handles), (usize)std::get<2>(handles));
-  Const<i32> fd = (i32)((u64)std::get<0>(handles));
+  const i32 fd = (i32)((u64)std::get<0>(handles));
   if (fd != -1) {
     ::close(fd);
   }
 #endif
 }
 
-auto FileOps::map_shared_memory(Ref<String> name, Const<usize> size,
-                                Const<bool> is_owner) -> Result<u8 *> {
+auto FileOps::map_shared_memory(Ref<String> name, const usize size,
+                                const bool is_owner) -> Result<u8 *> {
 #if IA_PLATFORM_WINDOWS
-  Const<int> wchars_num =
+  const int wchars_num =
       MultiByteToWideChar(CP_UTF8, 0, name.c_str(), -1, NULL, 0);
   Mut<std::wstring> w_name(wchars_num, 0);
   MultiByteToWideChar(CP_UTF8, 0, name.c_str(), -1, &w_name[0], wchars_num);
@@ -135,7 +135,7 @@ auto FileOps::unlink_shared_memory(Ref<String> name) -> void {
 auto FileOps::map_file(Ref<Path> path, MutRef<usize> size)
     -> Result<const u8 *> {
 #if IA_PLATFORM_WINDOWS
-  Const<HANDLE> handle = CreateFileA(
+  const HANDLE handle = CreateFileA(
       path.string().c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
@@ -161,7 +161,7 @@ auto FileOps::map_file(Ref<Path> path, MutRef<usize> size)
     return fail("Failed to memory map {}", path.string());
   }
 
-  Const<u8> *result =
+  const u8 *result =
       static_cast<const u8 *>(MapViewOfFile(h_map, FILE_MAP_READ, 0, 0, 0));
   if (result == NULL) {
     CloseHandle(handle);
@@ -173,7 +173,7 @@ auto FileOps::map_file(Ref<Path> path, MutRef<usize> size)
   return result;
 
 #elif IA_PLATFORM_UNIX
-  Const<int> handle = open(path.string().c_str(), O_RDONLY);
+  const int handle = open(path.string().c_str(), O_RDONLY);
   if (handle == -1) {
     return fail("Failed to open {} for memory mapping", path.string());
   }
@@ -192,7 +192,7 @@ auto FileOps::map_file(Ref<Path> path, MutRef<usize> size)
     close(handle);
     return fail("Failed to memory map {}", path.string());
   }
-  Const<Const<u8> *> result = static_cast<const u8 *>(addr);
+  const u8 *result = static_cast<const u8 *>(addr);
   madvise(addr, size, MADV_SEQUENTIAL);
   s_mapped_files[result] =
       std::make_tuple((void *)((u64)handle), (void *)addr, (void *)size);
@@ -200,7 +200,7 @@ auto FileOps::map_file(Ref<Path> path, MutRef<usize> size)
 #endif
 }
 
-auto FileOps::stream_to_file(Ref<Path> path, Const<bool> overwrite)
+auto FileOps::stream_to_file(Ref<Path> path, const bool overwrite)
     -> Result<StreamWriter> {
   if (!overwrite && std::filesystem::exists(path)) {
     return fail("File already exists: {}", path.string());
@@ -222,7 +222,7 @@ auto FileOps::read_text_file(Ref<Path> path) -> Result<String> {
   }
   Mut<String> result;
   fseek(f, 0, SEEK_END);
-  Const<long> len = ftell(f);
+  const long len = ftell(f);
   if (len > 0) {
     result.resize(static_cast<usize>(len));
     fseek(f, 0, SEEK_SET);
@@ -239,7 +239,7 @@ auto FileOps::read_binary_file(Ref<Path> path) -> Result<Vec<u8>> {
   }
   Mut<Vec<u8>> result;
   fseek(f, 0, SEEK_END);
-  Const<long> len = ftell(f);
+  const long len = ftell(f);
   if (len > 0) {
     result.resize(static_cast<usize>(len));
     fseek(f, 0, SEEK_SET);
@@ -250,8 +250,8 @@ auto FileOps::read_binary_file(Ref<Path> path) -> Result<Vec<u8>> {
 }
 
 auto FileOps::write_text_file(Ref<Path> path, Ref<String> contents,
-                              Const<bool> overwrite) -> Result<usize> {
-  Const<Const<char> *> mode = overwrite ? "w" : "wx";
+                              const bool overwrite) -> Result<usize> {
+  const char *mode = overwrite ? "w" : "wx";
   Mut<FILE *> f = fopen(path.string().c_str(), mode);
   if (!f) {
     if (!overwrite && errno == EEXIST) {
@@ -259,14 +259,14 @@ auto FileOps::write_text_file(Ref<Path> path, Ref<String> contents,
     }
     return fail("Failed to write to file: {}", path.string());
   }
-  Const<usize> result = fwrite(contents.data(), 1, contents.size(), f);
+  const usize result = fwrite(contents.data(), 1, contents.size(), f);
   fclose(f);
   return result;
 }
 
-auto FileOps::write_binary_file(Ref<Path> path, Const<Span<Const<u8>>> contents,
-                                Const<bool> overwrite) -> Result<usize> {
-  Const<Const<char> *> mode = overwrite ? "w" : "wx";
+auto FileOps::write_binary_file(Ref<Path> path, const Span<const u8> contents,
+                                const bool overwrite) -> Result<usize> {
+  const char *mode = overwrite ? "w" : "wx";
   Mut<FILE *> f = fopen(path.string().c_str(), mode);
   if (!f) {
     if (!overwrite && errno == EEXIST) {
@@ -274,7 +274,7 @@ auto FileOps::write_binary_file(Ref<Path> path, Const<Span<Const<u8>>> contents,
     }
     return fail("Failed to write to file: {}", path.string());
   }
-  Const<usize> result = fwrite(contents.data(), 1, contents.size(), f);
+  const usize result = fwrite(contents.data(), 1, contents.size(), f);
   fclose(f);
   return result;
 }
@@ -301,8 +301,8 @@ auto FileOps::normalize_executable_path(Ref<Path> path) -> Path {
   return result;
 }
 
-auto FileOps::native_open_file(Ref<Path> path, Const<FileAccess> access,
-                               Const<FileMode> mode, Const<u32> permissions)
+auto FileOps::native_open_file(Ref<Path> path, const FileAccess access,
+                               const FileMode mode, const u32 permissions)
     -> Result<NativeFileHandle> {
 #if IA_PLATFORM_WINDOWS
   Mut<DWORD> dw_access = 0;
@@ -392,7 +392,7 @@ auto FileOps::native_open_file(Ref<Path> path, Const<FileAccess> access,
 #endif
 }
 
-auto FileOps::native_close_file(Const<NativeFileHandle> handle) -> void {
+auto FileOps::native_close_file(const NativeFileHandle handle) -> void {
   if (handle == INVALID_FILE_HANDLE) {
     return;
   }
@@ -428,8 +428,8 @@ auto FileOps::MemoryMappedRegion::operator=(
   return *this;
 }
 
-auto FileOps::MemoryMappedRegion::map(Const<NativeFileHandle> handle,
-                                      Const<u64> offset, Const<usize> size)
+auto FileOps::MemoryMappedRegion::map(const NativeFileHandle handle,
+                                      const u64 offset, const usize size)
     -> Result<void> {
   unmap();
 
@@ -447,7 +447,7 @@ auto FileOps::MemoryMappedRegion::map(Const<NativeFileHandle> handle,
     return fail("Failed to get file size");
   }
 
-  Const<u64> end_offset = offset + size;
+  const u64 end_offset = offset + size;
   if (static_cast<u64>(file_size.QuadPart) < end_offset) {
     Mut<LARGE_INTEGER> new_size;
     new_size.QuadPart = static_cast<LONGLONG>(end_offset);
@@ -465,8 +465,8 @@ auto FileOps::MemoryMappedRegion::map(Const<NativeFileHandle> handle,
     return fail("CreateFileMapping failed: {}", GetLastError());
   }
 
-  Const<DWORD> offset_high = static_cast<DWORD>(offset >> 32);
-  Const<DWORD> offset_low = static_cast<DWORD>(offset & 0xFFFFFFFF);
+  const DWORD offset_high = static_cast<DWORD>(offset >> 32);
+  const DWORD offset_low = static_cast<DWORD>(offset & 0xFFFFFFFF);
 
   m_ptr = static_cast<u8 *>(MapViewOfFile(m_map_handle, FILE_MAP_WRITE,
                                           offset_high, offset_low, size));
@@ -484,7 +484,7 @@ auto FileOps::MemoryMappedRegion::map(Const<NativeFileHandle> handle,
     return fail("Failed to fstat file");
   }
 
-  Const<u64> end_offset = offset + size;
+  const u64 end_offset = offset + size;
   if (static_cast<u64>(sb.st_size) < end_offset) {
     if (ftruncate(handle, static_cast<off_t>(end_offset)) == -1) {
       return fail("Failed to ftruncate (extend) file");

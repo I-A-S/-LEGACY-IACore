@@ -20,7 +20,7 @@ namespace IACore {
 auto StreamReader::create_from_file(Ref<Path> path) -> Result<StreamReader> {
   Mut<usize> size = 0;
 
-  Const<const u8 *> ptr = AU_TRY(FileOps::map_file(path, size));
+  const u8 *ptr = AU_TRY(FileOps::map_file(path, size));
 
   Mut<StreamReader> reader(Span<const u8>(ptr, size));
   reader.m_storage_type = StorageType::OwningMmap;
@@ -35,7 +35,7 @@ StreamReader::StreamReader(ForwardRef<Vec<u8>> data)
   m_data_size = m_owning_vector.size();
 }
 
-StreamReader::StreamReader(Const<Span<const u8>> data)
+StreamReader::StreamReader(const Span<const u8> data)
     : m_data(data.data()), m_data_size(data.size()),
       m_storage_type(StorageType::NonOwning) {}
 

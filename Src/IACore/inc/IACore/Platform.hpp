@@ -37,8 +37,8 @@ public:
   static auto check_cpu() -> bool;
 
 #if IA_ARCH_X64
-  static auto cpuid(Const<i32> function, Const<i32> sub_function,
-                    Mut<i32 *> out) -> void;
+  static auto cpuid(const i32 function, const i32 sub_function, Mut<i32 *> out)
+      -> void;
 #endif
 
   static auto get_architecture_name() -> const char *;

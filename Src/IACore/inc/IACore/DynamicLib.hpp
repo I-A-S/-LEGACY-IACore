@@ -43,7 +43,7 @@ public:
     Mut<DynamicLib> lib;
 
 #if IA_PLATFORM_WINDOWS
-    Const<HMODULE> h = LoadLibraryA(full_path.string().c_str());
+    const HMODULE h = LoadLibraryA(full_path.string().c_str());
     if (!h) {
       return fail(get_windows_error());
     }
@@ -51,7 +51,7 @@ public:
 #else
     Mut<void *> h = dlopen(full_path.c_str(), RTLD_LAZY | RTLD_LOCAL);
     if (!h) {
-      Const<char *> err = dlerror();
+      const char *err = dlerror();
       return fail(err ? err : "Unknown dlopen error");
     }
     lib.m_handle = h;
@@ -96,7 +96,7 @@ public:
 #else
     dlerror(); // Clear prev errors
     sym = dlsym(m_handle, name.c_str());
-    if (Const<char *> err = dlerror()) {
+    if (const char *err = dlerror()) {
       return fail(err);
     }
 #endif
@@ -129,19 +129,19 @@ private:
 
 #if IA_PLATFORM_WINDOWS
   static auto get_windows_error() -> String {
-    Const<DWORD> error_id = ::GetLastError();
+    const DWORD error_id = ::GetLastError();
     if (error_id == 0) {
       return String();
     }
 
     Mut<LPSTR> message_buffer = nullptr;
-    Const<usize> size = FormatMessageA(
+    const usize size = FormatMessageA(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr, error_id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         reinterpret_cast<LPSTR>(&message_buffer), 0, nullptr);
 
-    Const<String> message(message_buffer, size);
+    const String message(message_buffer, size);
     LocalFree(message_buffer);
     return "Win32 Error: " + message;
   }

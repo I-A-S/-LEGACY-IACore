@@ -82,14 +82,14 @@ namespace Env {
 using namespace Auxid::Env;
 
 #if IA_PLATFORM_WINDOWS
-constexpr Const<bool> IS_WINDOWS = true;
-constexpr Const<bool> IS_UNIX = false;
+constexpr const bool IS_WINDOWS = true;
+constexpr const bool IS_UNIX = false;
 #else
-constexpr Const<bool> IS_WINDOWS = false;
-constexpr Const<bool> IS_UNIX = true;
+constexpr const bool IS_WINDOWS = false;
+constexpr const bool IS_UNIX = true;
 #endif
 
-constexpr Const<usize> MAX_PATH_LEN = 4096;
+constexpr const usize MAX_PATH_LEN = 4096;
 
 } // namespace Env
 
@@ -120,13 +120,13 @@ struct Version {
 // Console Colors
 // =============================================================================
 namespace console {
-constexpr Const<const char *> RESET = "\033[0m";
-constexpr Const<const char *> RED = "\033[31m";
-constexpr Const<const char *> GREEN = "\033[32m";
-constexpr Const<const char *> YELLOW = "\033[33m";
-constexpr Const<const char *> BLUE = "\033[34m";
-constexpr Const<const char *> MAGENTA = "\033[35m";
-constexpr Const<const char *> CYAN = "\033[36m";
+constexpr const char *RESET = "\033[0m";
+constexpr const char *RED = "\033[31m";
+constexpr const char *GREEN = "\033[32m";
+constexpr const char *YELLOW = "\033[33m";
+constexpr const char *BLUE = "\033[34m";
+constexpr const char *MAGENTA = "\033[35m";
+constexpr const char *CYAN = "\033[36m";
 } // namespace console
 
 } // namespace IACore

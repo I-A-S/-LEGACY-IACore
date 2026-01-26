@@ -26,7 +26,7 @@ public:
   using TaskTag = u64;
   using WorkerId = u16;
 
-  static constexpr Const<WorkerId> MAIN_THREAD_WORKER_ID = 0;
+  static constexpr const WorkerId MAIN_THREAD_WORKER_ID = 0;
 
   enum class Priority : u8 { High, Normal };
 
@@ -35,15 +35,14 @@ public:
   };
 
 public:
-  static auto initialize_scheduler(Const<u8> worker_count = 0) -> Result<void>;
+  static auto initialize_scheduler(const u8 worker_count = 0) -> Result<void>;
   static auto terminate_scheduler() -> void;
 
-  static auto schedule_task(Mut<std::function<void(Const<WorkerId>)>> task,
-                            Const<TaskTag> tag, Mut<Schedule *> schedule,
-                            Const<Priority> priority = Priority::Normal)
-      -> void;
+  static auto schedule_task(Mut<std::function<void(const WorkerId)>> task,
+                            const TaskTag tag, Mut<Schedule *> schedule,
+                            const Priority priority = Priority::Normal) -> void;
 
-  static auto cancel_tasks_of_tag(Const<TaskTag> tag) -> void;
+  static auto cancel_tasks_of_tag(const TaskTag tag) -> void;
 
   static auto wait_for_schedule_completion(Mut<Schedule *> schedule) -> void;
 
@@ -55,11 +54,11 @@ private:
   struct ScheduledTask {
     Mut<TaskTag> tag{};
     Mut<Schedule *> schedule_handle{};
-    Mut<std::function<void(Const<WorkerId>)>> task{};
+    Mut<std::function<void(const WorkerId)>> task{};
   };
 
   static auto schedule_worker_loop(Mut<std::stop_token> stop_token,
-                                   Const<WorkerId> worker_id) -> void;
+                                   const WorkerId worker_id) -> void;
 
 private:
   static Mut<std::mutex> s_queue_mutex;

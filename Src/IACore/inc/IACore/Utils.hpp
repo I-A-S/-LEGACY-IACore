@@ -29,14 +29,14 @@ public:
   static auto get_seconds_count() -> f64;
 
   static auto get_random() -> f32;
-  static auto get_random(Const<u64> max) -> u64;
-  static auto get_random(Const<i64> min, Const<i64> max) -> i64;
+  static auto get_random(const u64 max) -> u64;
+  static auto get_random(const i64 min, const i64 max) -> i64;
 
-  static auto sleep(Const<u64> milliseconds) -> void;
+  static auto sleep(const u64 milliseconds) -> void;
 
-  static auto binary_to_hex_string(Const<Span<Const<u8>>> data) -> String;
+  static auto binary_to_hex_string(const Span<const u8> data) -> String;
 
-  static auto hex_string_to_binary(Const<StringView> hex) -> Result<Vec<u8>>;
+  static auto hex_string_to_binary(const StringView hex) -> Result<Vec<u8>>;
 
   template <typename Range>
   inline static auto sort(ForwardRef<Range> range) -> void {
@@ -60,11 +60,11 @@ public:
     Mut<u64> h = 0;
 
     if constexpr (std::is_constructible_v<StringView, T>) {
-      Const<StringView> sv(v);
-      Const<ankerl::unordered_dense::hash<StringView>> hasher;
+      const StringView sv(v);
+      const ankerl::unordered_dense::hash<StringView> hasher;
       h = hasher(sv);
     } else {
-      Const<ankerl::unordered_dense::hash<T>> hasher;
+      const ankerl::unordered_dense::hash<T> hasher;
       h = hasher(v);
     }
 
@@ -79,7 +79,7 @@ public:
   }
 
   template <typename T, typename... MemberPtrs>
-  inline static auto compute_hash_flat(Ref<T> obj, Const<MemberPtrs>... members)
+  inline static auto compute_hash_flat(Ref<T> obj, const MemberPtrs... members)
       -> u64 {
     Mut<u64> seed = 0;
     (hash_combine(seed, obj.*members), ...);

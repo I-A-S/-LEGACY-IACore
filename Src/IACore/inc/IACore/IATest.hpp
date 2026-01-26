@@ -105,8 +105,7 @@ public:
 
 protected:
   template <typename T1, typename T2>
-  auto _test_eq(Ref<T1> lhs, Ref<T2> rhs, Const<const char *> description)
-      -> bool {
+  auto _test_eq(Ref<T1> lhs, Ref<T2> rhs, const char *description) -> bool {
     if (lhs != rhs) {
       print_fail(description, to_string(lhs), to_string(rhs));
       return false;
@@ -115,8 +114,7 @@ protected:
   }
 
   template <typename T1, typename T2>
-  auto _test_neq(Ref<T1> lhs, Ref<T2> rhs, Const<const char *> description)
-      -> bool {
+  auto _test_neq(Ref<T1> lhs, Ref<T2> rhs, const char *description) -> bool {
     if (lhs == rhs) {
       print_fail(description, to_string(lhs), "NOT " + to_string(rhs));
       return false;
@@ -125,11 +123,10 @@ protected:
   }
 
   template <typename T>
-  auto _test_approx(Const<T> lhs, Const<T> rhs, Const<const char *> description)
-      -> bool {
+  auto _test_approx(const T lhs, const T rhs, const char *description) -> bool {
     static_assert(std::is_floating_point_v<T>,
                   "Approx only works for floats/doubles");
-    Const<T> diff = std::abs(lhs - rhs);
+    const T diff = std::abs(lhs - rhs);
     if (diff > static_cast<T>(0.0001)) {
       print_fail(description, to_string(lhs), to_string(rhs));
       return false;
@@ -137,7 +134,7 @@ protected:
     return true;
   }
 
-  auto _test(Const<bool> value, Const<const char *> description) -> bool {
+  auto _test(const bool value, const char *description) -> bool {
     if (!value) {
       std::cout << console::BLUE << "    " << description << "... "
                 << console::RED << "FAILED" << console::RESET << "\n";
@@ -146,7 +143,7 @@ protected:
     return true;
   }
 
-  auto _test_not(Const<bool> value, Const<const char *> description) -> bool {
+  auto _test_not(const bool value, const char *description) -> bool {
     if (value) {
       std::cout << console::BLUE << "    " << description << "... "
                 << console::RED << "FAILED" << console::RESET << "\n";
@@ -155,13 +152,12 @@ protected:
     return true;
   }
 
-  auto _test_unit(Mut<TestFunctor> functor, Const<const char *> name) -> void {
+  auto _test_unit(Mut<TestFunctor> functor, const char *name) -> void {
     m_units.push_back({name, std::move(functor)});
   }
 
 private:
-  auto print_fail(Const<const char *> desc, Ref<String> v1, Ref<String> v2)
-      -> void {
+  auto print_fail(const char *desc, Ref<String> v1, Ref<String> v2) -> void {
     std::cout << console::BLUE << "    " << desc << "... " << console::RED
               << "FAILED" << console::RESET << "\n";
     std::cout << console::RED << "      Expected: " << v2 << console::RESET
@@ -215,7 +211,7 @@ auto Runner<StopOnFail, IsVerbose>::test_block() -> void {
                 << console::RESET;
     }
 
-    Const<bool> result = v.functor();
+    const bool result = v.functor();
 
     if (!result) {
       m_fail_count++;
@@ -237,7 +233,7 @@ auto Runner<StopOnFail, IsVerbose>::summarize() -> void {
   if (m_fail_count == 0) {
     std::cout << "\n\tALL TESTS PASSED!\n\n";
   } else {
-    Const<f64> success_rate =
+    const f64 success_rate =
         (100.0 * static_cast<f64>(m_test_count - m_fail_count) /
          static_cast<f64>(m_test_count));
     std::cout << console::RED << m_fail_count << " OF " << m_test_count

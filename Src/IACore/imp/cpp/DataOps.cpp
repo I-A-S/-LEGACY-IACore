@@ -31,7 +31,7 @@
 
 namespace IACore {
 template <typename T>
-[[nodiscard]] inline auto read_unaligned(Const<Const<u8> *> ptr) -> T {
+[[nodiscard]] inline auto read_unaligned(const u8 *ptr) -> T {
   Mut<T> v;
   std::memcpy(&v, ptr, sizeof(T));
   return v;
@@ -41,7 +41,7 @@ struct Crc32Tables {
   Mut<u32> table[8][256] = {};
 
   consteval Crc32Tables() {
-    constexpr Const<u32> T = 0x82F63B78;
+    constexpr const u32 T = 0x82F63B78;
 
     for (Mut<u32> i = 0; i < 256; i++) {
       Mut<u32> crc = i;
@@ -53,24 +53,24 @@ struct Crc32Tables {
 
     for (Mut<i32> i = 0; i < 256; i++) {
       for (Mut<i32> slice = 1; slice < 8; slice++) {
-        Const<u32> prev = table[slice - 1][i];
+        const u32 prev = table[slice - 1][i];
         table[slice][i] = (prev >> 8) ^ table[0][prev & 0xFF];
       }
     }
   }
 };
 
-static constexpr Const<Crc32Tables> CRC32_TABLES{};
+static constexpr const Crc32Tables CRC32_TABLES{};
 
 #if IA_ARCH_X64
-inline auto crc32_x64_hw(Ref<Span<Const<u8>>> data) -> u32 {
+inline auto crc32_x64_hw(Ref<Span<const u8>> data) -> u32 {
   Mut<const u8 *> p = data.data();
 
   Mut<u32> crc = 0xFFFFFFFF;
   Mut<usize> len = data.size();
 
   while (len >= 8) {
-    Const<u64> chunk = read_unaligned<u64>(p);
+    const u64 chunk = read_unaligned<u64>(p);
     crc = static_cast<u32>(_mm_crc32_u64(static_cast<u64>(crc), chunk));
     p += 8;
     len -= 8;
@@ -86,14 +86,14 @@ inline auto crc32_x64_hw(Ref<Span<Const<u8>>> data) -> u32 {
 
 #if IA_ARCH_ARM64
 __attribute__((target("+crc"))) inline auto
-crc32_arm64_hw(Ref<Span<Const<u8>>> data) -> u32 {
+crc32_arm64_hw(Ref<Span<const u8>> data) -> u32 {
   Mut<const u8 *> p = data.data();
 
   Mut<u32> crc = 0xFFFFFFFF;
   Mut<usize> len = data.size();
 
   while (len >= 8) {
-    Const<u64> chunk = read_unaligned<u64>(p);
+    const u64 chunk = read_unaligned<u64>(p);
     crc = __crc32cd(crc, chunk);
     p += 8;
     len -= 8;
@@ -107,14 +107,14 @@ crc32_arm64_hw(Ref<Span<Const<u8>>> data) -> u32 {
 }
 #endif
 
-inline auto crc32_software_slice8(Ref<Span<Const<u8>>> data) -> u32 {
+inline auto crc32_software_slice8(Ref<Span<const u8>> data) -> u32 {
   Mut<const u8 *> p = data.data();
   Mut<u32> crc = 0xFFFFFFFF;
   Mut<usize> len = data.size();
 
   while (len >= 8) {
-    Const<u32> term1 = crc ^ read_unaligned<u32>(p);
-    Const<u32> term2 = read_unaligned<u32>(p + 4);
+    const u32 term1 = crc ^ read_unaligned<u32>(p);
+    const u32 term2 = read_unaligned<u32>(p + 4);
 
     crc = CRC32_TABLES.table[7][term1 & 0xFF] ^
           CRC32_TABLES.table[6][(term1 >> 8) & 0xFF] ^
@@ -136,7 +136,7 @@ inline auto crc32_software_slice8(Ref<Span<Const<u8>>> data) -> u32 {
   return ~crc;
 }
 
-auto DataOps::crc32(Ref<Span<Const<u8>>> data) -> u32 {
+auto DataOps::crc32(Ref<Span<const u8>> data) -> u32 {
 #if IA_ARCH_X64
   // IACore mandates AVX2 so no need to check
   return crc32_x64_hw(data);
@@ -148,33 +148,32 @@ auto DataOps::crc32(Ref<Span<Const<u8>>> data) -> u32 {
   return crc32_software_slice8(data);
 }
 
-constexpr Const<u32> XXH_PRIME32_1 = 0x9E3779B1U;
-constexpr Const<u32> XXH_PRIME32_2 = 0x85EBCA77U;
-constexpr Const<u32> XXH_PRIME32_3 = 0xC2B2AE3DU;
-constexpr Const<u32> XXH_PRIME32_4 = 0x27D4EB2FU;
-constexpr Const<u32> XXH_PRIME32_5 = 0x165667B1U;
+constexpr const u32 XXH_PRIME32_1 = 0x9E3779B1U;
+constexpr const u32 XXH_PRIME32_2 = 0x85EBCA77U;
+constexpr const u32 XXH_PRIME32_3 = 0xC2B2AE3DU;
+constexpr const u32 XXH_PRIME32_4 = 0x27D4EB2FU;
+constexpr const u32 XXH_PRIME32_5 = 0x165667B1U;
 
-inline auto xxh32_round(Mut<u32> seed, Const<u32> input) -> u32 {
+inline auto xxh32_round(Mut<u32> seed, const u32 input) -> u32 {
   seed += input * XXH_PRIME32_2;
   seed = std::rotl(seed, 13);
   seed *= XXH_PRIME32_1;
   return seed;
 }
 
-auto DataOps::hash_xxhash(Ref<String> string, Const<u32> seed) -> u32 {
-  return hash_xxhash(
-      Span<Const<u8>>(reinterpret_cast<const u8 *>(string.data()),
-                      string.length()),
-      seed);
+auto DataOps::hash_xxhash(Ref<String> string, const u32 seed) -> u32 {
+  return hash_xxhash(Span<const u8>(reinterpret_cast<const u8 *>(string.data()),
+                                    string.length()),
+                     seed);
 }
 
-auto DataOps::hash_xxhash(Ref<Span<Const<u8>>> data, Const<u32> seed) -> u32 {
+auto DataOps::hash_xxhash(Ref<Span<const u8>> data, const u32 seed) -> u32 {
   Mut<const u8 *> p = data.data();
-  Const<const u8 *> b_end = p + data.size();
+  const u8 *b_end = p + data.size();
   Mut<u32> h32{};
 
   if (data.size() >= 16) {
-    Const<const u8 *> limit = b_end - 16;
+    const u8 *limit = b_end - 16;
 
     Mut<u32> v1 = seed + XXH_PRIME32_1 + XXH_PRIME32_2;
     Mut<u32> v2 = seed + XXH_PRIME32_2;
@@ -201,7 +200,7 @@ auto DataOps::hash_xxhash(Ref<Span<Const<u8>>> data, Const<u32> seed) -> u32 {
   h32 += static_cast<u32>(data.size());
 
   while (p + 4 <= b_end) {
-    Const<u32> t = read_unaligned<u32>(p) * XXH_PRIME32_3;
+    const u32 t = read_unaligned<u32>(p) * XXH_PRIME32_3;
     h32 += t;
     h32 = std::rotl(h32, 17) * XXH_PRIME32_4;
     p += 4;
@@ -221,21 +220,21 @@ auto DataOps::hash_xxhash(Ref<Span<Const<u8>>> data, Const<u32> seed) -> u32 {
   return h32;
 }
 
-constexpr Const<u32> FNV1A_32_PRIME = 0x01000193;
-constexpr Const<u32> FNV1A_32_OFFSET = 0x811c9dc5;
+constexpr const u32 FNV1A_32_PRIME = 0x01000193;
+constexpr const u32 FNV1A_32_OFFSET = 0x811c9dc5;
 
 auto DataOps::hash_fnv1a(Ref<String> string) -> u32 {
   Mut<u32> hash = FNV1A_32_OFFSET;
-  for (Const<char> c : string) {
+  for (const char c : string) {
     hash ^= static_cast<u8>(c);
     hash *= FNV1A_32_PRIME;
   }
   return hash;
 }
 
-auto DataOps::hash_fnv1a(Ref<Span<Const<u8>>> data) -> u32 {
+auto DataOps::hash_fnv1a(Ref<Span<const u8>> data) -> u32 {
   Mut<u32> hash = FNV1A_32_OFFSET;
-  Const<const u8 *> ptr = data.data();
+  const u8 *ptr = data.data();
 
   for (Mut<usize> i = 0; i < data.size(); ++i) {
     hash ^= ptr[i];
@@ -244,8 +243,7 @@ auto DataOps::hash_fnv1a(Ref<Span<Const<u8>>> data) -> u32 {
   return hash;
 }
 
-auto DataOps::detect_compression(Const<Span<Const<u8>>> data)
-    -> CompressionType {
+auto DataOps::detect_compression(const Span<const u8> data) -> CompressionType {
   if (data.size() < 2) {
     return CompressionType::None;
   }
@@ -262,7 +260,7 @@ auto DataOps::detect_compression(Const<Span<Const<u8>>> data)
   return CompressionType::None;
 }
 
-auto DataOps::zlib_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
+auto DataOps::zlib_inflate(Ref<Span<const u8>> data) -> Result<Vec<u8>> {
   Mut<z_stream> zs{};
   zs.zalloc = Z_NULL;
   zs.zfree = Z_NULL;
@@ -276,7 +274,7 @@ auto DataOps::zlib_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   zs.avail_in = static_cast<uInt>(data.size());
 
   Mut<Vec<u8>> out_buffer;
-  Const<usize> guess_size =
+  const usize guess_size =
       data.size() < 1024 ? data.size() * 4 : data.size() * 2;
   out_buffer.resize(guess_size);
 
@@ -286,8 +284,8 @@ auto DataOps::zlib_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   Mut<int> ret;
   do {
     if (zs.avail_out == 0) {
-      Const<usize> current_pos = zs.total_out;
-      Const<usize> new_size = out_buffer.size() * 2;
+      const usize current_pos = zs.total_out;
+      const usize new_size = out_buffer.size() * 2;
       out_buffer.resize(new_size);
 
       zs.next_out = reinterpret_cast<Bytef *>(out_buffer.data() + current_pos);
@@ -309,7 +307,7 @@ auto DataOps::zlib_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   return out_buffer;
 }
 
-auto DataOps::zlib_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
+auto DataOps::zlib_deflate(Ref<Span<const u8>> data) -> Result<Vec<u8>> {
   Mut<z_stream> zs{};
   zs.zalloc = Z_NULL;
   zs.zfree = Z_NULL;
@@ -328,7 +326,7 @@ auto DataOps::zlib_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   zs.next_out = reinterpret_cast<Bytef *>(out_buffer.data());
   zs.avail_out = static_cast<uInt>(out_buffer.size());
 
-  Const<int> ret = deflate(&zs, Z_FINISH);
+  const int ret = deflate(&zs, Z_FINISH);
 
   if (ret != Z_STREAM_END) {
     deflateEnd(&zs);
@@ -341,8 +339,8 @@ auto DataOps::zlib_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   return out_buffer;
 }
 
-auto DataOps::zstd_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
-  Const<unsigned long long> content_size =
+auto DataOps::zstd_inflate(Ref<Span<const u8>> data) -> Result<Vec<u8>> {
+  const unsigned long long content_size =
       ZSTD_getFrameContentSize(data.data(), data.size());
 
   if (content_size == ZSTD_CONTENTSIZE_ERROR) {
@@ -353,8 +351,8 @@ auto DataOps::zstd_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
     Mut<Vec<u8>> out_buffer;
     out_buffer.resize(static_cast<usize>(content_size));
 
-    Const<usize> d_size = ZSTD_decompress(out_buffer.data(), out_buffer.size(),
-                                          data.data(), data.size());
+    const usize d_size = ZSTD_decompress(out_buffer.data(), out_buffer.size(),
+                                         data.data(), data.size());
 
     if (ZSTD_isError(d_size)) {
       return fail("Failed to inflate: {}", ZSTD_getErrorName(d_size));
@@ -380,7 +378,7 @@ auto DataOps::zstd_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
     }
 
     if (output.pos == output.size) {
-      Const<usize> new_size = out_buffer.size() * 2;
+      const usize new_size = out_buffer.size() * 2;
       out_buffer.resize(new_size);
       output.dst = out_buffer.data();
       output.size = new_size;
@@ -394,14 +392,14 @@ auto DataOps::zstd_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   return out_buffer;
 }
 
-auto DataOps::zstd_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
-  Const<usize> max_dst_size = ZSTD_compressBound(data.size());
+auto DataOps::zstd_deflate(Ref<Span<const u8>> data) -> Result<Vec<u8>> {
+  const usize max_dst_size = ZSTD_compressBound(data.size());
 
   Mut<Vec<u8>> out_buffer;
   out_buffer.resize(max_dst_size);
 
-  Const<usize> compressed_size = ZSTD_compress(out_buffer.data(), max_dst_size,
-                                               data.data(), data.size(), 3);
+  const usize compressed_size = ZSTD_compress(out_buffer.data(), max_dst_size,
+                                              data.data(), data.size(), 3);
 
   if (ZSTD_isError(compressed_size)) {
     return fail("Failed to deflate: {}", ZSTD_getErrorName(compressed_size));
@@ -411,7 +409,7 @@ auto DataOps::zstd_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   return out_buffer;
 }
 
-auto DataOps::gzip_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
+auto DataOps::gzip_deflate(Ref<Span<const u8>> data) -> Result<Vec<u8>> {
   Mut<z_stream> zs{};
   zs.zalloc = Z_NULL;
   zs.zfree = Z_NULL;
@@ -432,7 +430,7 @@ auto DataOps::gzip_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   zs.next_out = reinterpret_cast<Bytef *>(out_buffer.data());
   zs.avail_out = static_cast<uInt>(out_buffer.size());
 
-  Const<int> ret = deflate(&zs, Z_FINISH);
+  const int ret = deflate(&zs, Z_FINISH);
 
   if (ret != Z_STREAM_END) {
     deflateEnd(&zs);
@@ -445,7 +443,7 @@ auto DataOps::gzip_deflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
   return out_buffer;
 }
 
-auto DataOps::gzip_inflate(Ref<Span<Const<u8>>> data) -> Result<Vec<u8>> {
+auto DataOps::gzip_inflate(Ref<Span<const u8>> data) -> Result<Vec<u8>> {
   return zlib_inflate(data);
 }
 

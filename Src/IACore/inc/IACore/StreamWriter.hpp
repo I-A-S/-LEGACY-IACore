@@ -30,7 +30,7 @@ public:
   static auto create_from_file(Ref<Path> path) -> Result<StreamWriter>;
 
   StreamWriter();
-  explicit StreamWriter(Const<Span<u8>> data);
+  explicit StreamWriter(const Span<u8> data);
 
   StreamWriter(ForwardRef<StreamWriter> other);
   auto operator=(ForwardRef<StreamWriter> other) -> MutRef<StreamWriter>;
@@ -40,8 +40,8 @@ public:
 
   ~StreamWriter();
 
-  auto write(Const<u8> byte, Const<usize> count) -> Result<void>;
-  auto write(Const<const void *> buffer, Const<usize> size) -> Result<void>;
+  auto write(const u8 byte, const usize count) -> Result<void>;
+  auto write(const void *buffer, const usize size) -> Result<void>;
 
   template <typename T> auto write(Ref<T> value) -> Result<void>;
 

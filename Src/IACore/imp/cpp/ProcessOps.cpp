@@ -18,13 +18,13 @@
 namespace IACore {
 struct LineBuffer {
   Mut<String> m_accumulator;
-  Const<std::function<void(Const<StringView>)>> m_callback;
+  const std::function<void(StringView)> m_callback;
 
-  auto append(Const<char *> data, Const<usize> size) -> void;
+  auto append(const char *data, const usize size) -> void;
   auto flush() -> void;
 };
 
-auto LineBuffer::append(Const<char *> data, Const<usize> size) -> void {
+auto LineBuffer::append(const char *data, const usize size) -> void {
   Mut<usize> start = 0;
   for (Mut<usize> i = 0; i < size; ++i) {
     if (data[i] == '\n' || data[i] == '\r') {
@@ -68,7 +68,7 @@ auto ProcessOps::get_current_process_id() -> NativeProcessID {
 
 auto ProcessOps::spawn_process_sync(
     Ref<String> command, Ref<String> args,
-    Const<std::function<void(Const<StringView>)>> on_output_line_callback)
+    const std::function<void(StringView)> on_output_line_callback)
     -> Result<i32> {
   Mut<std::atomic<NativeProcessID>> id = 0;
   if constexpr (Env::IS_WINDOWS) {
@@ -80,8 +80,8 @@ auto ProcessOps::spawn_process_sync(
 
 auto ProcessOps::spawn_process_async(
     Ref<String> command, Ref<String> args,
-    Const<std::function<void(Const<StringView>)>> on_output_line_callback,
-    Const<std::function<void(Const<Result<i32>>)>> on_finish_callback)
+    const std::function<void(StringView)> on_output_line_callback,
+    const std::function<void(Result<i32>)> on_finish_callback)
     -> Result<Box<ProcessHandle>> {
   Mut<Box<ProcessHandle>> handle = make_box<ProcessHandle>();
   handle->is_running = true;
@@ -118,7 +118,7 @@ auto ProcessOps::terminate_process(Ref<Box<ProcessHandle>> handle) -> void {
     return;
   }
 
-  Const<NativeProcessID> pid = handle->id.load();
+  const NativeProcessID pid = handle->id.load();
   if (pid == 0) {
     return;
   }
@@ -137,7 +137,7 @@ auto ProcessOps::terminate_process(Ref<Box<ProcessHandle>> handle) -> void {
 
 auto ProcessOps::spawn_process_windows(
     Ref<String> command, Ref<String> args,
-    Const<std::function<void(Const<StringView>)>> on_output_line_callback,
+    const std::function<void(StringView)> on_output_line_callback,
     MutRef<std::atomic<NativeProcessID>> id) -> Result<i32> {
 #if IA_PLATFORM_WINDOWS
   Mut<SECURITY_ATTRIBUTES> sa_attr = {sizeof(SECURITY_ATTRIBUTES), NULL, true};
@@ -162,8 +162,8 @@ auto ProcessOps::spawn_process_windows(
 
   Mut<String> command_line = std::format("\"{}\" {}", command, args);
 
-  Const<BOOL> success = CreateProcessA(NULL, command_line.data(), NULL, NULL,
-                                       true, 0, NULL, NULL, &si, &pi);
+  const BOOL success = CreateProcessA(NULL, command_line.data(), NULL, NULL,
+                                      true, 0, NULL, NULL, &si, &pi);
 
   CloseHandle(h_write);
 
@@ -206,7 +206,7 @@ auto ProcessOps::spawn_process_windows(
 
 auto ProcessOps::spawn_process_posix(
     Ref<String> command, Ref<String> args,
-    Const<std::function<void(Const<StringView>)>> on_output_line_callback,
+    const std::function<void(StringView)> on_output_line_callback,
     MutRef<std::atomic<NativeProcessID>> id) -> Result<i32> {
 #if IA_PLATFORM_UNIX
   Mut<Array<i32, 2>> pipefd;
@@ -214,7 +214,7 @@ auto ProcessOps::spawn_process_posix(
     return fail("Failed to create pipe");
   }
 
-  Const<pid_t> pid = fork();
+  const pid_t pid = fork();
 
   if (pid == -1) {
     return fail("Failed to fork process");
@@ -235,7 +235,7 @@ auto ProcessOps::spawn_process_posix(
     Mut<bool> in_quotes = false;
     Mut<bool> is_escaped = false;
 
-    for (Const<char> c : args) {
+    for (const char c : args) {
       if (is_escaped) {
         current_token += c;
         is_escaped = false;

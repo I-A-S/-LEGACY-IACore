@@ -29,9 +29,9 @@ public:
   static auto parse_from_string(Ref<String> data) -> Result<Document>;
   static auto parse_from_file(Ref<Path> path) -> Result<Document>;
 
-  static auto serialize_to_string(Ref<Node> node, Const<bool> escape = false)
+  static auto serialize_to_string(Ref<Node> node, const bool escape = false)
       -> String;
-  static auto serialize_to_string(Ref<Document> doc, Const<bool> escape = false)
+  static auto serialize_to_string(Ref<Document> doc, const bool escape = false)
       -> String;
 
   static auto escape_xml_string(Ref<String> xml) -> String;

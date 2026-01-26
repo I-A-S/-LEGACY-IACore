@@ -22,11 +22,10 @@
 
 #if IA_PLATFORM_WINDOWS
 using NativeFileHandle = HANDLE;
-static constexpr au::Const<NativeFileHandle> INVALID_FILE_HANDLE =
-    INVALID_HANDLE_VALUE;
+static constexpr NativeFileHandle INVALID_FILE_HANDLE = INVALID_HANDLE_VALUE;
 #else
 using NativeFileHandle = int;
-static constexpr au::Const<NativeFileHandle> INVALID_FILE_HANDLE = -1;
+static constexpr NativeFileHandle INVALID_FILE_HANDLE = -1;
 #endif
 
 namespace IACore {
@@ -49,31 +48,31 @@ public:
     TruncateExisting // Opens existing and clears it
   };
 
-  static auto native_open_file(Ref<Path> path, Const<FileAccess> access,
-                               Const<FileMode> mode,
-                               Const<u32> permissions = 0644)
+  static auto native_open_file(Ref<Path> path, const FileAccess access,
+                               const FileMode mode,
+                               const u32 permissions = 0644)
       -> Result<NativeFileHandle>;
 
-  static auto native_close_file(Const<NativeFileHandle> handle) -> void;
+  static auto native_close_file(const NativeFileHandle handle) -> void;
 
 public:
   static auto normalize_executable_path(Ref<Path> path) -> Path;
 
 public:
-  static auto unmap_file(Const<const u8 *> mapped_ptr) -> void;
+  static auto unmap_file(const u8 *mapped_ptr) -> void;
 
   static auto map_file(Ref<Path> path, MutRef<usize> size)
       -> Result<const u8 *>;
 
   // @param `is_owner` true to allocate/truncate. false to just open.
-  static auto map_shared_memory(Ref<String> name, Const<usize> size,
-                                Const<bool> is_owner) -> Result<u8 *>;
+  static auto map_shared_memory(Ref<String> name, const usize size,
+                                const bool is_owner) -> Result<u8 *>;
 
   static auto unlink_shared_memory(Ref<String> name) -> void;
 
   static auto stream_from_file(Ref<Path> path) -> Result<StreamReader>;
 
-  static auto stream_to_file(Ref<Path> path, Const<bool> overwrite = false)
+  static auto stream_to_file(Ref<Path> path, const bool overwrite = false)
       -> Result<StreamWriter>;
 
   static auto read_text_file(Ref<Path> path) -> Result<String>;
@@ -81,10 +80,10 @@ public:
   static auto read_binary_file(Ref<Path> path) -> Result<Vec<u8>>;
 
   static auto write_text_file(Ref<Path> path, Ref<String> contents,
-                              Const<bool> overwrite = false) -> Result<usize>;
+                              const bool overwrite = false) -> Result<usize>;
 
-  static auto write_binary_file(Ref<Path> path, Const<Span<const u8>> contents,
-                                Const<bool> overwrite = false) -> Result<usize>;
+  static auto write_binary_file(Ref<Path> path, const Span<const u8> contents,
+                                const bool overwrite = false) -> Result<usize>;
 
 private:
   static Mut<HashMap<const u8 *, std::tuple<void *, void *, void *>>>
@@ -103,7 +102,7 @@ public:
   auto operator=(ForwardRef<MemoryMappedRegion> other) noexcept
       -> MemoryMappedRegion &;
 
-  auto map(Const<NativeFileHandle> handle, Const<u64> offset, Const<usize> size)
+  auto map(const NativeFileHandle handle, const u64 offset, const usize size)
       -> Result<void>;
 
   auto unmap() -> void;

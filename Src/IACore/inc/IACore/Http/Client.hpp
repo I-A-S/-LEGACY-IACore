@@ -31,20 +31,20 @@ public:
   auto operator=(Ref<HttpClient>) -> MutRef<HttpClient> = delete;
 
 public:
-  auto raw_get(Ref<String> path, Span<Const<Header>> headers,
-               Const<char> *default_content_type =
+  auto raw_get(Ref<String> path, Span<const Header> headers,
+               const char *default_content_type =
                    "application/x-www-form-urlencoded") -> Result<String>;
 
-  auto raw_post(Ref<String> path, Span<Const<Header>> headers, Ref<String> body,
-                Const<char> *default_content_type =
+  auto raw_post(Ref<String> path, Span<const Header> headers, Ref<String> body,
+                const char *default_content_type =
                     "application/x-www-form-urlencoded") -> Result<String>;
 
   template <typename ResponseType>
-  auto json_get(Ref<String> path, Span<Const<Header>> headers)
+  auto json_get(Ref<String> path, Span<const Header> headers)
       -> Result<ResponseType>;
 
   template <typename PayloadType, typename ResponseType>
-  auto json_post(Ref<String> path, Span<Const<Header>> headers,
+  auto json_post(Ref<String> path, Span<const Header> headers,
                  Ref<PayloadType> body) -> Result<ResponseType>;
 
   // Certificate verification is enabled by default
@@ -66,9 +66,9 @@ protected:
 };
 
 template <typename ResponseType>
-auto HttpClient::json_get(Ref<String> path, Span<Const<Header>> headers)
+auto HttpClient::json_get(Ref<String> path, Span<const Header> headers)
     -> Result<ResponseType> {
-  Const<String> raw_response =
+  const String raw_response =
       AU_TRY(raw_get(path, headers, "application/json"));
 
   if (last_response_code() != EResponseCode::OK) {
@@ -79,11 +79,11 @@ auto HttpClient::json_get(Ref<String> path, Span<Const<Header>> headers)
 }
 
 template <typename PayloadType, typename ResponseType>
-auto HttpClient::json_post(Ref<String> path, Span<Const<Header>> headers,
+auto HttpClient::json_post(Ref<String> path, Span<const Header> headers,
                            Ref<PayloadType> body) -> Result<ResponseType> {
-  Const<String> encoded_body = AU_TRY(Json::encode_struct(body));
+  const String encoded_body = AU_TRY(Json::encode_struct(body));
 
-  Const<String> raw_response =
+  const String raw_response =
       AU_TRY(raw_post(path, headers, encoded_body, "application/json"));
 
   if (last_response_code() != EResponseCode::OK) {

@@ -20,7 +20,7 @@
 namespace IACore {
 class StringOps {
 public:
-  static auto encode_base64(Const<Span<Const<u8>>> data) -> String;
+  static auto encode_base64(const Span<const u8> data) -> String;
   static auto decode_base64(Ref<String> data) -> Vec<u8>;
 };
 } // namespace IACore

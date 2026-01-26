@@ -21,7 +21,7 @@
 #define IACORE_MAIN()                                                          \
   auto _app_entry(IACore::Ref<IACore::Vec<IACore::String>> args)               \
       -> IACore::Result<IACore::i32>;                                          \
-  auto main(Const<int> argc, Mut<char *> argv[]) -> int {                      \
+  auto main(int argc, Mut<char *> argv[]) -> int {                             \
     IACore::Mut<IACore::i32> exit_code = 0;                                    \
     IACore::initialize();                                                      \
     IACore::Mut<IACore::Vec<IACore::String>> args;                             \
@@ -29,7 +29,7 @@
     for (IACore::Mut<IACore::i32> i = 0; i < argc; ++i) {                      \
       args.push_back(argv[i]);                                                 \
     }                                                                          \
-    IACore::Const<IACore::Result<IACore::i32>> result = _app_entry(args);      \
+    IACore::Result<IACore::i32> result = _app_entry(args);                     \
     if (!result) {                                                             \
       IACore::Logger::error("Application exited with an error: '{}'.",         \
                             result.error());                                   \

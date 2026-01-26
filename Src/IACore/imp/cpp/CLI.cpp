@@ -16,7 +16,7 @@
 #include <IACore/CLI.hpp>
 
 namespace IACore {
-CLIParser::CLIParser(Const<Span<Const<String>>> args) : m_arg_list(args) {
+CLIParser::CLIParser(const Span<const String> args) : m_arg_list(args) {
   m_current_arg = m_arg_list.begin();
 
   // Skip executable path

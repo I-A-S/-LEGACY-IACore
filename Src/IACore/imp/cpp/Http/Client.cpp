@@ -21,8 +21,8 @@ auto HttpClient::create(Ref<String> host) -> Result<Box<HttpClient>> {
   return make_box_protected<HttpClient>(httplib::Client(host));
 }
 
-static auto build_headers(Span<Const<HttpClient::Header>> headers,
-                          Const<Const<char> *> default_content_type)
+static auto build_headers(Span<const HttpClient::Header> headers,
+                          const char *default_content_type)
     -> httplib::Headers {
   Mut<httplib::Headers> out;
   Mut<bool> has_content_type = false;
@@ -59,26 +59,26 @@ auto HttpClient::disable_certificate_verification() -> void {
 }
 
 auto HttpClient::preprocess_response(Ref<String> response) -> String {
-  Const<Span<Const<u8>>> response_bytes = {
-      reinterpret_cast<Const<u8> *>(response.data()), response.size()};
-  Const<DataOps::CompressionType> compression =
+  const Span<const u8> response_bytes = {
+      reinterpret_cast<const u8 *>(response.data()), response.size()};
+  const DataOps::CompressionType compression =
       DataOps::detect_compression(response_bytes);
 
   switch (compression) {
   case DataOps::CompressionType::Gzip: {
-    Const<Result<Vec<u8>>> data = DataOps::gzip_inflate(response_bytes);
+    const Result<Vec<u8>> data = DataOps::gzip_inflate(response_bytes);
     if (!data) {
       return response;
     }
-    return String(reinterpret_cast<Const<char> *>(data->data()), data->size());
+    return String(reinterpret_cast<const char *>(data->data()), data->size());
   }
 
   case DataOps::CompressionType::Zlib: {
-    Const<Result<Vec<u8>>> data = DataOps::zlib_inflate(response_bytes);
+    const Result<Vec<u8>> data = DataOps::zlib_inflate(response_bytes);
     if (!data) {
       return response;
     }
-    return String(reinterpret_cast<Const<char> *>(data->data()), data->size());
+    return String(reinterpret_cast<const char *>(data->data()), data->size());
   }
 
   case DataOps::CompressionType::None:
@@ -88,10 +88,9 @@ auto HttpClient::preprocess_response(Ref<String> response) -> String {
   return response;
 }
 
-auto HttpClient::raw_get(Ref<String> path, Span<Const<Header>> headers,
-                         Const<Const<char> *> default_content_type)
-    -> Result<String> {
-  Const<httplib::Headers> http_headers =
+auto HttpClient::raw_get(Ref<String> path, Span<const Header> headers,
+                         const char *default_content_type) -> Result<String> {
+  const httplib::Headers http_headers =
       build_headers(headers, default_content_type);
 
   Mut<String> adjusted_path = path;
@@ -99,8 +98,7 @@ auto HttpClient::raw_get(Ref<String> path, Span<Const<Header>> headers,
     adjusted_path = "/" + path;
   }
 
-  Const<httplib::Result> res =
-      m_client.Get(adjusted_path.c_str(), http_headers);
+  const httplib::Result res = m_client.Get(adjusted_path.c_str(), http_headers);
 
   if (res) {
     m_last_response_code = static_cast<EResponseCode>(res->status);
@@ -113,16 +111,15 @@ auto HttpClient::raw_get(Ref<String> path, Span<Const<Header>> headers,
   return fail("Network Error: {}", httplib::to_string(res.error()));
 }
 
-auto HttpClient::raw_post(Ref<String> path, Span<Const<Header>> headers,
-                          Ref<String> body,
-                          Const<Const<char> *> default_content_type)
+auto HttpClient::raw_post(Ref<String> path, Span<const Header> headers,
+                          Ref<String> body, const char *default_content_type)
     -> Result<String> {
   Mut<httplib::Headers> http_headers =
       build_headers(headers, default_content_type);
 
   Mut<String> content_type = default_content_type;
   if (http_headers.count("Content-Type")) {
-    Const<httplib::Headers::iterator> t = http_headers.find("Content-Type");
+    const httplib::Headers::iterator t = http_headers.find("Content-Type");
     content_type = t->second;
     http_headers.erase(t);
   }
@@ -134,8 +131,8 @@ auto HttpClient::raw_post(Ref<String> path, Span<Const<Header>> headers,
     adjusted_path = "/" + path;
   }
 
-  Const<httplib::Result> res = m_client.Post(
-      adjusted_path.c_str(), http_headers, body, content_type.c_str());
+  const httplib::Result res = m_client.Post(adjusted_path.c_str(), http_headers,
+                                            body, content_type.c_str());
 
   if (res) {
     m_last_response_code = static_cast<EResponseCode>(res->status);

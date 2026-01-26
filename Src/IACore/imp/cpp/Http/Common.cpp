@@ -21,7 +21,7 @@ auto HttpCommon::url_encode(Ref<String> value) -> String {
   escaped.fill('0');
   escaped << std::hex << std::uppercase;
 
-  for (Const<char> c : value) {
+  for (const char c : value) {
     if (std::isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' ||
         c == '.' || c == '~')
       escaped << c;
@@ -39,8 +39,8 @@ auto HttpCommon::url_decode(Ref<String> value) -> String {
 
   for (Mut<size_t> i = 0; i < value.length(); ++i) {
     if (value[i] == '%' && i + 2 < value.length()) {
-      Const<std::string> hex_str = value.substr(i + 1, 2);
-      Const<char> decoded_char =
+      const std::string hex_str = value.substr(i + 1, 2);
+      const char decoded_char =
           static_cast<char>(std::strtol(hex_str.c_str(), nullptr, 16));
       result += decoded_char;
       i += 2;
@@ -53,7 +53,7 @@ auto HttpCommon::url_decode(Ref<String> value) -> String {
   return result;
 }
 
-auto HttpCommon::header_type_to_string(Const<EHeaderType> type) -> String {
+auto HttpCommon::header_type_to_string(const EHeaderType type) -> String {
   switch (type) {
   case EHeaderType::ACCEPT:
     return "Accept";
@@ -111,7 +111,7 @@ auto HttpCommon::header_type_to_string(Const<EHeaderType> type) -> String {
   return "<Unknown>";
 }
 
-auto HttpCommon::is_success_response_code(Const<EResponseCode> code) -> bool {
+auto HttpCommon::is_success_response_code(const EResponseCode code) -> bool {
   return (i32)code >= 200 && (i32)code < 300;
 }
 } // namespace IACore

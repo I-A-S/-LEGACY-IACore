@@ -35,7 +35,7 @@ struct alignas(64) IpcSharedMemoryLayout {
   Mut<Header> meta;
 
   // Pad to ensure MONI starts on a fresh cache line (64 bytes)
-  Const<Array<u8, 64 - sizeof(Header)>> _pad0;
+  const Array<u8, 64 - sizeof(Header)> _pad0;
 
   // =========================================================
   // RING BUFFER CONTROL BLOCKS
@@ -56,7 +56,7 @@ struct alignas(64) IpcSharedMemoryLayout {
   Mut<u64> mino_data_size;
 
   // Pad to ensure the actual Data Buffer starts on a fresh cache line
-  Const<Array<u8, 64 - (sizeof(u64) * 4)>> _pad1;
+  const Array<u8, 64 - (sizeof(u64) * 4)> _pad1;
 
   static constexpr auto get_header_size() -> usize {
     return sizeof(IpcSharedMemoryLayout);
@@ -73,17 +73,17 @@ public:
 
   // When Manager spawns a node, `connection_string` is passed
   // as the first command line argument
-  auto connect(Const<const char *> connection_string) -> Result<void>;
+  auto connect(const char *connection_string) -> Result<void>;
 
   auto update() -> void;
 
-  auto send_signal(Const<u8> signal) -> void;
-  auto send_packet(Const<u16> packet_id, Const<Span<Const<u8>>> payload)
+  auto send_signal(const u8 signal) -> void;
+  auto send_packet(const u16 packet_id, const Span<const u8> payload)
       -> Result<void>;
 
 protected:
-  virtual auto on_signal(Const<u8> signal) -> void = 0;
-  virtual auto on_packet(Const<u16> packet_id, Const<Span<Const<u8>>> payload)
+  virtual auto on_signal(const u8 signal) -> void = 0;
+  virtual auto on_packet(const u16 packet_id, const Span<const u8> payload)
       -> void = 0;
 
 private:
@@ -116,13 +116,13 @@ class IpcManager {
 
     Mut<bool> is_ready{false};
 
-    auto send_signal(Const<u8> signal) -> void;
-    auto send_packet(Const<u16> packet_id, Const<Span<Const<u8>>> payload)
+    auto send_signal(const u8 signal) -> void;
+    auto send_packet(const u16 packet_id, const Span<const u8> payload)
         -> Result<void>;
   };
 
 public:
-  static constexpr Const<u32> DEFAULT_NODE_SHARED_MEMORY_SIZE = 4 * 1024 * 1024;
+  static constexpr const u32 DEFAULT_NODE_SHARED_MEMORY_SIZE = 4 * 1024 * 1024;
 
 public:
   virtual ~IpcManager();
@@ -131,22 +131,22 @@ public:
 
   auto
   spawn_node(Ref<Path> executable_path,
-             Const<u32> shared_memory_size = DEFAULT_NODE_SHARED_MEMORY_SIZE)
+             const u32 shared_memory_size = DEFAULT_NODE_SHARED_MEMORY_SIZE)
       -> Result<NativeProcessID>;
 
-  auto wait_till_node_is_online(Const<NativeProcessID> node) -> bool;
+  auto wait_till_node_is_online(const NativeProcessID node) -> bool;
 
-  auto shutdown_node(Const<NativeProcessID> node) -> void;
+  auto shutdown_node(const NativeProcessID node) -> void;
 
-  auto send_signal(Const<NativeProcessID> node, Const<u8> signal) -> void;
-  auto send_packet(Const<NativeProcessID> node, Const<u16> packet_id,
-                   Const<Span<Const<u8>>> payload) -> Result<void>;
+  auto send_signal(const NativeProcessID node, const u8 signal) -> void;
+  auto send_packet(const NativeProcessID node, const u16 packet_id,
+                   const Span<const u8> payload) -> Result<void>;
 
 protected:
-  virtual auto on_signal(Const<NativeProcessID> node, Const<u8> signal)
+  virtual auto on_signal(const NativeProcessID node, const u8 signal)
       -> void = 0;
-  virtual auto on_packet(Const<NativeProcessID> node, Const<u16> packet_id,
-                         Const<Span<Const<u8>>> payload) -> void = 0;
+  virtual auto on_packet(const NativeProcessID node, const u16 packet_id,
+                         const Span<const u8> payload) -> void = 0;
 
 private:
   Mut<Vec<u8>> m_receive_buffer;

@@ -30,7 +30,7 @@ namespace IACore {
 Mut<Platform::Capabilities> Platform::s_capabilities{};
 
 #if defined(IA_ARCH_X64)
-auto Platform::cpuid(Const<i32> function, Const<i32> sub_function,
+auto Platform::cpuid(const i32 function, const i32 sub_function,
                      Mut<i32> out[4]) -> void {
 #ifdef _MSC_VER
   __cpuidex(reinterpret_cast<i32 *>(out), static_cast<i32>(function),
@@ -59,21 +59,21 @@ auto Platform::check_cpu() -> bool {
   }
 
   cpuid(1, 0, cpu_info);
-  Const<bool> osxsave = (cpu_info[2] & (1 << 27)) != 0;
-  Const<bool> avx = (cpu_info[2] & (1 << 28)) != 0;
-  Const<bool> fma = (cpu_info[2] & (1 << 12)) != 0;
+  const bool osxsave = (cpu_info[2] & (1 << 27)) != 0;
+  const bool avx = (cpu_info[2] & (1 << 28)) != 0;
+  const bool fma = (cpu_info[2] & (1 << 12)) != 0;
 
   if (!osxsave || !avx || !fma) {
     return false;
   }
 
-  Const<u64> xcr_feature_mask = _xgetbv(0);
+  const u64 xcr_feature_mask = _xgetbv(0);
   if ((xcr_feature_mask & 0x6) != 0x6) {
     return false;
   }
 
   cpuid(7, 0, cpu_info);
-  Const<bool> avx2 = (cpu_info[1] & (1 << 5)) != 0;
+  const bool avx2 = (cpu_info[1] & (1 << 5)) != 0;
   if (!avx2) {
     return false;
   }
@@ -82,7 +82,7 @@ auto Platform::check_cpu() -> bool {
 
 #elif defined(IA_ARCH_ARM64)
 #if defined(__linux__) || defined(__ANDROID__)
-  Const<usize> hw_caps = getauxval(AT_HWCAP);
+  const usize hw_caps = getauxval(AT_HWCAP);
 
 #ifndef HWCAP_CRC32
 #define HWCAP_CRC32 (1 << 7)
