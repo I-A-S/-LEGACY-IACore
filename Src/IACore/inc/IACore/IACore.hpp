@@ -19,8 +19,9 @@
 #include <IACore/PCH.hpp>
 
 #define IACORE_MAIN()                                                                                                  \
-  auto _app_entry(IACore::Ref<IACore::Vec<IACore::String>> args) -> IACore::Result<IACore::i32>;                       \
-  auto main(int argc, Mut<char *> argv[]) -> int                                                                       \
+  auto _app_entry(IACore::String selfPath, IACore::Ref<IACore::Vec<IACore::String>> args, IACore::i32 argc,            \
+                  IACore::Mut<char *> argv[]) -> IACore::Result<IACore::i32>;                                          \
+  auto main(IACore::i32 argc, IACore::Mut<char *> argv[]) -> IACore::i32                                               \
   {                                                                                                                    \
     IACore::Mut<IACore::i32> exit_code = 0;                                                                            \
     IACore::initialize();                                                                                              \
@@ -30,7 +31,7 @@
     {                                                                                                                  \
       args.push_back(argv[i]);                                                                                         \
     }                                                                                                                  \
-    IACore::Result<IACore::i32> result = _app_entry(args);                                                             \
+    IACore::Result<IACore::i32> result = _app_entry(argv[0], args, argc, argv);                                        \
     if (!result)                                                                                                       \
     {                                                                                                                  \
       IACore::Logger::error("Application exited with an error: '{}'.", result.error());                                \
@@ -41,7 +42,7 @@
       exit_code = *result;                                                                                             \
       if (exit_code == 0)                                                                                              \
       {                                                                                                                \
-        IACore::Logger::info("Application exited successfully.");                                                      \
+        IACore::Logger::trace("Application exited successfully.");                                                     \
       }                                                                                                                \
       else                                                                                                             \
       {                                                                                                                \
@@ -51,7 +52,8 @@
     IACore::terminate();                                                                                               \
     return exit_code;                                                                                                  \
   }                                                                                                                    \
-  auto _app_entry(IACore::Ref<IACore::Vec<IACore::String>> args) -> IACore::Result<IACore::i32>
+  auto _app_entry(IACore::String selfPath, IACore::Ref<IACore::Vec<IACore::String>> args, IACore::i32 argc,            \
+                  IACore::Mut<char *> argv[]) -> IACore::Result<IACore::i32>
 
 namespace IACore
 {
