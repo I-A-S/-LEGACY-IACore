@@ -14,9 +14,9 @@
 </div>
 
 > [!NOTE]
-> This branch presents the latest version of IACore (v1.2), which is a major rewrite of the previous API. If you're looking for the previous API instead, please find it in the `_legay_api` branch!
+> This branch presents the latest version of IACore (v1.2), which is a major rewrite of the previous API. If you're looking for the previous version instead, please find it in the `_legay_api` branch.
 
-## 📖 Description
+## **Description**
 
 IACore is a high-performance C++20 foundation library bundling essential systems (IPC, Logging, Networking, Compression, and Async Scheduling) into a single, coherent API.
 
@@ -24,17 +24,17 @@ IACore strictly follows the coding style and philosophy of [Auxid](https://githu
 
 Originally developed as the internal core for IASoft (PVT) LTD., it is now open-source to provide a standardized bedrock for C++ applications where performance matters.
 
-## ✨ Features
+## **Features**
 
-* **🚀 High-Performance IPC:** Shared-Memory Ring Buffers with wait-free SPSC synchronization.
-* **🌐 Networking:** Integrated HTTP/HTTPS client (wrapper around `cpp-httplib` with automatic Zlib/Gzip handling).
-* **🧵 Async Scheduler:** A job system with high/normal priority queues.
-* **💾 File I/O:** Memory-mapped file operations and optimized binary stream readers/writers.
-* **📦 Compression:** Unified API for Zlib, Gzip, and Zstd.
-* **📜 Logging:** Thread-safe, colored console and disk logging.
-* **⚡ Modern C++:** Heavily utilizes modern C++20 concepts, `std::span`, and `Oxide` for error handling.
+* **High-Performance IPC:** Shared-Memory Ring Buffers with wait-free SPSC synchronization.
+* **Networking:** Integrated HTTP/HTTPS client (wrapper around `libcurl`).
+* **Async Scheduler:** A job system with high/normal priority queues.
+* **File I/O:** Memory-mapped file operations and optimized binary stream readers/writers.
+* **Compression:** Unified API for Zlib, Gzip, and Zstd.
+* **Logging:** Thread-safe, colored console and disk logging.
+* **Modern C++:** Heavily utilizes modern C++20 concepts and `Auxid` for security and error handling.
 
-## 💡 Usage Examples
+## **Usage Examples**
 ### 1. IPC (Manager & Node)
 IACore provides a manager/node architecture using shared memory.
 
@@ -114,11 +114,9 @@ if (res) {
 }
 ```
 
-## 🛠️ Integration
+## **Integration**
 
 IACore is built with CMake. You can include it in your project via `FetchContent` or by adding it as a subdirectory.
-
-**Note:** On Windows, you must have **VCPKG** installed and the `VCPKG_ROOT` environment variable set, for OpenSSL support.
 
 ### CMake Example
 ```cmake
@@ -139,37 +137,37 @@ add_executable(MyGame src/main.cpp)
 target_link_libraries(MyGame PRIVATE IACore)
 ```
 
-## 🤝 Contributing
+## **Contributing**
 
 We welcome contributions from the community!
 
 ### What we accept immediately:
-* **📚 Documentation:** Improvements to comments, the README, or external docs.
-* **🧪 Tests:** New unit tests (in `Tests/`) to improve coverage or reproduce bugs.
-* **💡 Examples:** New usage examples or sample projects.
-* **🐛 Bug Reports:** detailed issues describing reproduction steps are highly valued.
+* **Documentation:** Improvements to comments, the README, or external docs.
+* **Tests:** New unit tests (in `Tests/`) to improve coverage or reproduce bugs.
+* **Examples:** New usage examples or sample projects.
+* **Bug Reports:** detailed issues describing reproduction steps are highly valued.
 
 ### Core Library Policy (`Src/` Directory)
 Currently, **we are not accepting Pull Requests that modify the core source code (`Src/`)**.
 
 If you find a critical bug in `Src/`, please open an **Issue** rather than a PR, and the core team will implement a fix ASAP.
 
-## 📦 Dependencies
+## **Dependencies**
 IACore manages its own dependencies via CMake's FetchContent. You do not need to install these manually:
 
 * **JSON:** `glaze`
 * **SIMD:** `google-highway`
-* **Networking:** `cpp-httplib`
+* **Networking:** `libcurl`
 * **Compression:** `zlib-ng` & `zstd`
-* **Utilities:** `tl-expected` & `unordered_dense`
+* **Utilities:** `auxid`, `tl-expected` & `unordered_dense`
 
 **Note:** Following dependencies are not directly used by IACore, but bundles them (+ helper wrappers) for user convenience: `nlohmann_json`, `simdjson`, `pugixml`
 
-## ⚖️ License
+## **License**
 
 This project is licensed under the Apache License Version 2.0.
 
-## 🤖 Use of Generative AI at IASoft
+## **Use of Generative AI at IASoft**
 
 While we never let Generative AI to make architecural/design decisions, and we hand-write almost all of the implementations, we do use Generative AI (Google Gemini) for the following and *(ONLY following)* tasks:
 
