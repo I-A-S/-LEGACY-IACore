@@ -1,4 +1,4 @@
-# IACore (Independent Architecture Core)
+# [LEGACY] IACore (Independent Architecture Core)
 
 <div align="center">
   <img src="logo.svg" alt="IACore Logo" width="400"/>
@@ -13,8 +13,16 @@
   </p>
 </div>
 
-> [!NOTE]
-> This branch presents the latest version of IACore (v1.2), which is a major rewrite of the previous API. If you're looking for the previous version instead, please find it in the `_legay_api` branch.
+> [!WARNING]
+> IACore, as of now is officially retired. It served as the foundation for all IA Software for over 3 years.
+> 
+> With the introduction of Auxid, and our new internal standard reevaluations, we concluded that the monolithic design of IACore is not the future, and we're splitting IACore up to smaller, more focused set of libraries.
+>
+> You can find the new bedrock library IACrux [here](https://github.com/I-A-S/IACrux). IACrux is a much smaller and stripped down to essentials version of IACore.
+>
+> AsyncOps, FileOps and IPC will soon be refactored into their own library repositories as well. Thank you for using and showing your interest in IACore, while this is the end for IACore, it is the begining of a new and exciting chapter for the larger IA ecosystem.
+>
+> Hope to see you at [IACrux](https://github.com/I-A-S/IACrux)!
 
 ## **Description**
 
